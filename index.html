@@ -573,7 +573,7 @@ document.getElementById('schemeSort').addEventListener('change', renderScheme);
 
 async function loadReportData(){
   try {
-    const response = await fetch('scanx_mf_holdings_report_data.json');
+    const response = await fetch('report_data.json');
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     PERIODS = await response.json();
     DATA = PERIODS["0"];
