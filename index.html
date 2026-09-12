@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MF Holdings Movement Terminal</title>
+<script src="chart.umd.js"></script>
+<style>
+:root{
+  --bg:#0c0e12; --bg-elev:#12151b; --bg-card:#151920; --border:#232833;
+  --text:#e7ebf0; --text-dim:#8b93a3; --text-faint:#5b6272;
+  --accent:#d97757; --accent-soft:#d9775722;
+  --bull:#3ecf8e; --bull-soft:#3ecf8e1a;
+  --bear:#f2545b; --bear-soft:#f2545b1a;
+  --watch:#e8b34a; --watch-soft:#e8b34a1a;
+  --mono:'IBM Plex Mono','SFMono-Regular',Consolas,monospace;
+  --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --radius:10px;
+  --shadow:0 8px 24px rgba(0,0,0,.35);
+}
+html[data-theme="light"]{
+  --bg:#f5f4f1; --bg-elev:#ffffff; --bg-card:#ffffff; --border:#e3e0d9;
+  --text:#1c1c1a; --text-dim:#5b584f; --text-faint:#928e82;
+  --accent:#c1602e; --accent-soft:#c1602e18;
+  --bull:#1f8a5f; --bull-soft:#1f8a5f14;
+  --bear:#c53a41; --bear-soft:#c53a4114;
+  --watch:#a8791f; --watch-soft:#a8791f14;
+  --shadow:0 8px 24px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box;}
+body{
+  margin:0; background:var(--bg); color:var(--text); font-family:var(--sans);
+  -webkit-font-smoothing:antialiased;
+}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+.topbar{
+  position:sticky; top:0; z-index:50; display:flex; align-items:center; justify-content:space-between;
+  padding:16px 28px; background:color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter:blur(10px); border-bottom:1px solid var(--border);
+  gap:16px; flex-wrap:wrap;
+}
+.brand{display:flex; align-items:center; gap:12px;}
+.brand .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent);}
+.brand h1{font-size:16px; margin:0; letter-spacing:.02em; font-weight:700;}
+.brand .sub{font-family:var(--mono); font-size:11px; color:var(--text-faint); margin-top:2px;}
+.topbar-right{display:flex; align-items:center; gap:12px; flex-wrap:wrap;}
+.period-select{
+  display:flex; align-items:center; gap:8px; background:var(--bg-card); border:1px solid var(--border);
+  border-radius:100px; padding:6px 6px;
+}
+.period-select button{
+  border:none; background:transparent; color:var(--text-dim); font-family:var(--sans); font-size:12px;
+  font-weight:600; padding:6px 14px; border-radius:100px; cursor:pointer; white-space:nowrap;
+}
+.period-select button.active{background:var(--accent); color:#fff;}
+.theme-toggle{
+  display:flex; align-items:center; gap:8px; background:var(--bg-card); border:1px solid var(--border);
+  border-radius:100px; padding:6px 6px; cursor:pointer; user-select:none;
+}
+.theme-toggle button{
+  border:none; background:transparent; color:var(--text-dim); font-family:var(--sans); font-size:12px;
+  font-weight:600; padding:6px 12px; border-radius:100px; cursor:pointer;
+}
+.theme-toggle button.active{background:var(--accent); color:#fff;}
+
+.stats-strip{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1px;
+  background:var(--border); border-bottom:1px solid var(--border);
+}
+.stat{background:var(--bg-elev); padding:16px 20px;}
+.stat .k{font-family:var(--mono); font-size:22px; font-weight:600;}
+.stat .l{font-size:11px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.06em; margin-top:4px;}
+.stat.bull .k{color:var(--bull);} .stat.bear .k{color:var(--bear);} .stat.watch .k{color:var(--watch);}
+
+nav.tabs{
+  display:flex; gap:4px; overflow-x:auto; padding:14px 24px 0 24px; border-bottom:1px solid var(--border);
+  background:var(--bg);
+}
+nav.tabs button{
+  font-family:var(--sans); font-weight:600; font-size:13px; white-space:nowrap;
+  background:transparent; border:none; color:var(--text-faint); padding:10px 16px; cursor:pointer;
+  border-bottom:2px solid transparent; margin-bottom:-1px;
+}
+nav.tabs button:hover{color:var(--text);}
+nav.tabs button.active{color:var(--accent); border-bottom-color:var(--accent);}
+
+main{padding:24px; max-width:1400px; margin:0 auto;}
+.panel{display:none; animation:fade .25s ease;}
+.panel.active{display:block;}
+@keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);}}
+
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+.grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:18px;}
+@media(max-width:900px){.grid2,.grid3{grid-template-columns:1fr;}}
+
+.card{
+  background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius);
+  padding:18px; margin-bottom:18px; box-shadow:var(--shadow);
+}
+.card h3{margin:0 0 14px 0; font-size:14px; letter-spacing:.02em; display:flex; align-items:center; gap:8px;}
+.card h3 .badge{font-family:var(--mono); font-size:10px; padding:2px 7px; border-radius:100px; background:var(--accent-soft); color:var(--accent);}
+canvas{max-height:320px;}
+
+table{width:100%; border-collapse:collapse; font-size:13px;}
+th{
+  text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-faint);
+  padding:8px 10px; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--bg-card);
+}
+td{padding:9px 10px; border-bottom:1px solid var(--border); font-family:var(--mono); font-size:12.5px;}
+td.name{font-family:var(--sans); font-weight:500;}
+tr:hover td{background:var(--accent-soft);}
+.table-wrap{max-height:480px; overflow:auto; border:1px solid var(--border); border-radius:8px;}
+
+.tag{display:inline-block; padding:2px 8px; border-radius:100px; font-size:10.5px; font-weight:700; font-family:var(--mono); letter-spacing:.02em;}
+.tag.FRESH_ENTRY{background:var(--bull-soft); color:var(--bull);}
+.tag.EXIT{background:var(--bear-soft); color:var(--bear);}
+.tag.ADDITION{background:var(--bull-soft); color:var(--bull);}
+.tag.REDUCTION{background:var(--watch-soft); color:var(--watch);}
+
+.pos{color:var(--bull);} .neg{color:var(--bear);}
+
+.filters{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px;}
+.filters input, .filters select{
+  background:var(--bg-elev); border:1px solid var(--border); color:var(--text); border-radius:8px;
+  padding:8px 12px; font-family:var(--sans); font-size:12.5px; outline:none;
+}
+.filters input{flex:1; min-width:180px;}
+.filters input:focus, .filters select:focus{border-color:var(--accent);}
+
+.insight-card{
+  border-left:3px solid var(--accent); background:var(--bg-card); border:1px solid var(--border);
+  border-left-width:3px; border-radius:var(--radius); padding:18px; margin-bottom:16px; box-shadow:var(--shadow);
+}
+.insight-card.bullish{border-left-color:var(--bull);}
+.insight-card.bearish{border-left-color:var(--bear);}
+.insight-card.watch{border-left-color:var(--watch);}
+.insight-card h4{margin:0 0 6px 0; font-size:15px; display:flex; align-items:center; gap:8px;}
+.insight-card .tone-pill{font-family:var(--mono); font-size:9.5px; text-transform:uppercase; padding:2px 8px; border-radius:100px;}
+.insight-card.bullish .tone-pill{background:var(--bull-soft); color:var(--bull);}
+.insight-card.bearish .tone-pill{background:var(--bear-soft); color:var(--bear);}
+.insight-card.watch .tone-pill{background:var(--watch-soft); color:var(--watch);}
+.insight-card p.desc{color:var(--text-dim); font-size:13px; margin:0 0 12px 0; line-height:1.5;}
+.insight-card ul{margin:0; padding-left:0; list-style:none;}
+.insight-card li{
+  font-family:var(--mono); font-size:12.5px; padding:8px 0; border-top:1px dashed var(--border);
+}
+.insight-card li:first-child{border-top:none;}
+
+.empty{color:var(--text-faint); font-size:13px; padding:24px; text-align:center; font-family:var(--mono);}
+.footer{max-width:920px; margin:0 auto; text-align:center; color:var(--text-faint); font-size:11px; font-family:var(--mono); line-height:1.55; padding:30px 20px;}
+.footer .credit{display:block; font-size:9px; margin-top:5px;}
+.footer .credit a{color:inherit; text-decoration:none;}
+.footer .credit a:hover{text-decoration:underline;}
+.footer .disclaimer{display:block; font-family:var(--sans); font-size:10px; line-height:1.5; margin:12px auto 0; max-width:760px;}
+.footer .disclaimer strong{color:var(--text-dim);}
+::-webkit-scrollbar{height:8px; width:8px;}
+::-webkit-scrollbar-thumb{background:var(--border); border-radius:4px;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="dot"></div>
+    <div>
+      <h1>MF Holdings Movement Terminal</h1>
+      <div class="sub" id="metaLine">loading…</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="period-select" id="periodSelect">
+      <button data-period="0" class="active">Current Month</button>
+      <button data-period="1">Previous Month</button>
+      <button data-period="2">2 Months Ago</button>
+    </div>
+    <div class="theme-toggle">
+      <button id="btnDark" class="active" onclick="setTheme('dark')">Dark</button>
+      <button id="btnLight" onclick="setTheme('light')">Light</button>
+    </div>
+  </div>
+</div>
+
+<div class="stats-strip" id="statsStrip"></div>
+
+<nav class="tabs" id="tabs">
+  <button data-panel="overview" class="active">Overview</button>
+  <button data-panel="insights">Insights</button>
+  <button data-panel="fresh">Fresh Entries</button>
+  <button data-panel="exits">Exits</button>
+  <button data-panel="movement">Additions / Reductions</button>
+  <button data-panel="rare">Rare Allocations</button>
+  <button data-panel="amc">AMC View</button>
+  <button data-panel="scheme">Scheme View</button>
+</nav>
+
+<main>
+
+  <section class="panel active" id="panel-overview">
+    <div class="grid2">
+      <div class="card"><h3>Action Mix <span class="badge">latest vs prev month</span></h3><canvas id="chartActionMix"></canvas></div>
+      <div class="card"><h3>Sector Net Momentum <span class="badge">top / bottom</span></h3><canvas id="chartSectorFlow"></canvas></div>
+    </div>
+    <div class="grid2">
+      <div class="card"><h3>Top Fresh Entries <span class="badge">by AMC breadth</span></h3><canvas id="chartTopFresh"></canvas></div>
+      <div class="card"><h3>Top Exits <span class="badge">by AMC breadth</span></h3><canvas id="chartTopExits"></canvas></div>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-insights">
+    <div id="insightsWrap"></div>
+  </section>
+
+  <section class="panel" id="panel-fresh">
+    <div class="card">
+      <h3>Fresh Entries — Ranked by Breadth &amp; Conviction</h3>
+      <div class="filters">
+        <input type="text" id="freshSearch" placeholder="Search stock / sector…">
+        <select id="freshSort">
+          <option value="amcs">Sort: most AMCs</option>
+          <option value="schemes">Sort: most schemes</option>
+          <option value="perc">Sort: highest combined %</option>
+        </select>
+      </div>
+      <div class="table-wrap"><table id="tblFresh"><thead><tr><th>Stock</th><th>Sector</th><th>AMCs</th><th>Schemes</th><th>Combined Alloc %</th><th>Month</th></tr></thead><tbody></tbody></table></div>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-exits">
+    <div class="card">
+      <h3>Exits — Ranked by Breadth</h3>
+      <div class="filters">
+        <input type="text" id="exitSearch" placeholder="Search stock / sector…">
+        <select id="exitSort">
+          <option value="amcs">Sort: most AMCs</option>
+          <option value="schemes">Sort: most schemes</option>
+        </select>
+      </div>
+      <div class="table-wrap"><table id="tblExit"><thead><tr><th>Stock</th><th>Sector</th><th>AMCs</th><th>Schemes</th><th>Month</th></tr></thead><tbody></tbody></table></div>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-movement">
+    <div class="grid2">
+      <div class="card">
+        <h3>Top Additions <span class="badge">by share increase</span></h3>
+        <div class="table-wrap"><table id="tblAdd"><thead><tr><th>Stock</th><th>Sector</th><th>Schemes</th><th>Δ Shares</th></tr></thead><tbody></tbody></table></div>
+      </div>
+      <div class="card">
+        <h3>Top Reductions <span class="badge">by share decrease</span></h3>
+        <div class="table-wrap"><table id="tblRed"><thead><tr><th>Stock</th><th>Sector</th><th>Schemes</th><th>Δ Shares</th></tr></thead><tbody></tbody></table></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-rare">
+    <div class="grid2">
+      <div class="card">
+        <h3>Rarely Held Stocks <span class="badge">fewest schemes overall</span></h3>
+        <div class="table-wrap"><table id="tblRareHeld"><thead><tr><th>Stock</th><th>Sector</th><th>Schemes</th><th>AMCs</th></tr></thead><tbody></tbody></table></div>
+      </div>
+      <div class="card">
+        <h3>Rare Fresh Conviction Bets <span class="badge">≤3 schemes entered fresh</span></h3>
+        <div class="table-wrap"><table id="tblRareFresh"><thead><tr><th>Stock</th><th>Sector</th><th>Schemes</th><th>AMCs</th><th>Combined %</th></tr></thead><tbody></tbody></table></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-amc">
+    <div class="card">
+      <h3>AMC-level Net Stock Actions</h3>
+      <div class="filters">
+        <input type="text" id="amcSearch" placeholder="Search AMC / stock…">
+        <select id="amcActionFilter">
+          <option value="">All actions</option>
+          <option value="FRESH_ENTRY">Fresh Entry</option>
+          <option value="EXIT">Exit</option>
+          <option value="ADDITION">Addition</option>
+          <option value="REDUCTION">Reduction</option>
+        </select>
+      </div>
+      <div class="table-wrap"><table id="tblAmc"><thead><tr><th>AMC</th><th>Stock</th><th>Sector</th><th>Action</th><th>Schemes</th><th>Δ Shares</th></tr></thead><tbody></tbody></table></div>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-scheme">
+    <div class="card">
+      <h3>Scheme-level Activity Summary</h3>
+      <div class="filters">
+        <input type="text" id="schemeSearch" placeholder="Search AMC / scheme…">
+        <select id="schemeSort">
+          <option value="momentum_desc">Sort: momentum (bullish first)</option>
+          <option value="momentum_asc">Sort: momentum (bearish first)</option>
+          <option value="fresh">Sort: most fresh entries</option>
+          <option value="exit">Sort: most exits</option>
+        </select>
+      </div>
+      <div class="table-wrap"><table id="tblScheme"><thead><tr><th>AMC</th><th>Scheme</th><th>Fresh</th><th>Exit</th><th>Add</th><th>Reduce</th><th>Net Momentum</th><th>Month</th></tr></thead><tbody></tbody></table></div>
+    </div>
+  </section>
+
+</main>
+
+<div class="footer">Report generated: 01 Aug 2026, 00:00 IST · Mutual Fund Holdings · Toggle "Period" above to view the current month or either of the two prior month-over-month periods<span class="credit">Made with ❤️ by <a href="mailto:hiren.daftari@gmail.com">Me</a></span><span class="disclaimer"><strong>Disclaimer:</strong> “Current Month” shows activity reported for the last month. Data is updated on the 1st of every month and may be inaccurate, incomplete, or delayed. It is provided for informational purposes only and is not investment advice or a recommendation to buy or sell any security.</span></div>
+
+<script>
+let PERIODS = {};
+let DATA;
+let chartInstances = [];
+
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  document.getElementById('btnDark').classList.toggle('active', t==='dark');
+  document.getElementById('btnLight').classList.toggle('active', t==='light');
+  chartInstances.forEach(c => c.update());
+}
+
+function fmtNum(n){
+  if (n === null || n === undefined) return '—';
+  return Number(n).toLocaleString(undefined, {maximumFractionDigits: 2});
+}
+function fmtPct(n){
+  if (n === null || n === undefined) return '—';
+  const v = Number(n);
+  return (v>=0?'+':'') + v.toFixed(2) + '%';
+}
+function esc(s){ const d=document.createElement('div'); d.innerText = (s===undefined||s===null)?'':s; return d.innerHTML; }
+
+// ---------- Content tabs (Overview / Insights / etc.) ----------
+document.querySelectorAll('nav.tabs button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-'+btn.dataset.panel).classList.add('active');
+  });
+});
+
+// ---------- Period selector (Current / Previous / 2 Months Ago) ----------
+document.querySelectorAll('#periodSelect button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const key = btn.dataset.period;
+    if (!PERIODS[key]) return;
+    document.querySelectorAll('#periodSelect button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    DATA = PERIODS[key];
+    renderAll();
+  });
+});
+
+// ---------- Meta + Stats strip ----------
+function renderMeta(){
+  const monthTxt = DATA.meta.period_month ? ` · reporting month ${DATA.meta.period_month}` : '';
+  document.getElementById('metaLine').textContent =
+    `${DATA.meta.scheme_count.toLocaleString()} schemes · ${DATA.meta.amc_count.toLocaleString()} AMCs · ${DATA.meta.record_count.toLocaleString()} holding rows${monthTxt}`;
+
+  const stats = [
+    {k: DATA.meta.fresh_count, l: 'Fresh Entries', cls:'bull'},
+    {k: DATA.meta.exit_count, l: 'Exits', cls:'bear'},
+    {k: DATA.meta.addition_count, l: 'Additions', cls:'bull'},
+    {k: DATA.meta.reduction_count, l: 'Reductions', cls:'watch'},
+    {k: DATA.meta.unique_stocks, l: 'Unique Stocks Touched', cls:''},
+    {k: DATA.meta.parse_errors, l: 'Rows Skipped', cls:''},
+  ];
+  document.getElementById('statsStrip').innerHTML = stats.map(s=>
+    `<div class="stat ${s.cls}"><div class="k">${Number(s.k).toLocaleString()}</div><div class="l">${s.l}</div></div>`
+  ).join('');
+}
+
+// ---------- Overview charts ----------
+function makeChart(ctx, config){
+  if (typeof Chart === 'undefined') {
+    ctx.replaceWith(Object.assign(document.createElement('div'), {
+      className: 'empty',
+      textContent: 'Charts are unavailable because Chart.js could not be loaded.'
+    }));
+    return null;
+  }
+  const c = new Chart(ctx, config);
+  chartInstances.push(c);
+  return c;
+}
+
+function destroyCharts(){
+  chartInstances.forEach(c => { try { c.destroy(); } catch(e) {} });
+  chartInstances = [];
+}
+
+function renderOverviewCharts(){
+  destroyCharts();
+
+  const canvasIds = ['chartActionMix','chartSectorFlow','chartTopFresh','chartTopExits'];
+  canvasIds.forEach(id=>{
+    const old = document.getElementById(id);
+    if (old && old.tagName === 'DIV'){
+      // A previous "Chart.js unavailable" placeholder replaced the canvas; nothing to restore into.
+      return;
+    }
+  });
+
+  const elActionMix = document.getElementById('chartActionMix');
+  if (elActionMix) makeChart(elActionMix, {
+    type: 'doughnut',
+    data: {
+      labels: ['Fresh Entry','Addition','Reduction','Exit'],
+      datasets: [{
+        data: [DATA.meta.fresh_count, DATA.meta.addition_count, DATA.meta.reduction_count, DATA.meta.exit_count],
+        backgroundColor: ['#3ecf8e','#5fb0ff','#e8b34a','#f2545b'],
+        borderWidth: 0,
+      }]
+    },
+    options: {plugins:{legend:{position:'bottom', labels:{color: '#8b93a3', font:{family:"'Inter'"}}}}}
+  });
+
+  const sf = DATA.sector_flow.slice(0,8).concat(DATA.sector_flow.slice(-4));
+  const elSectorFlow = document.getElementById('chartSectorFlow');
+  if (elSectorFlow) makeChart(elSectorFlow, {
+    type: 'bar',
+    data: {
+      labels: sf.map(s=>s.sector),
+      datasets: [{
+        label: 'Net momentum',
+        data: sf.map(s=>s.net_momentum),
+        backgroundColor: sf.map(s=>s.net_momentum>=0 ? '#3ecf8e' : '#f2545b'),
+        borderRadius: 4,
+      }]
+    },
+    options: {indexAxis:'y', plugins:{legend:{display:false}},
+      scales:{x:{ticks:{color:'#8b93a3'}, grid:{color:'#232833'}}, y:{ticks:{color:'#8b93a3'}, grid:{display:false}}}}
+  });
+
+  const topFresh = DATA.fresh_breadth.slice().sort((a,b)=>b.num_amcs-a.num_amcs).slice(0,10);
+  const elTopFresh = document.getElementById('chartTopFresh');
+  if (elTopFresh) makeChart(elTopFresh, {
+    type:'bar',
+    data:{labels:topFresh.map(s=>s.sym), datasets:[{label:'AMCs entering fresh', data:topFresh.map(s=>s.num_amcs), backgroundColor:'#3ecf8e', borderRadius:4}]},
+    options:{plugins:{legend:{display:false}}, scales:{x:{ticks:{color:'#8b93a3'}, grid:{display:false}}, y:{ticks:{color:'#8b93a3'}, grid:{color:'#232833'}}}}
+  });
+
+  const topExits = DATA.exit_breadth.slice().sort((a,b)=>b.num_amcs-a.num_amcs).slice(0,10);
+  const elTopExits = document.getElementById('chartTopExits');
+  if (elTopExits) makeChart(elTopExits, {
+    type:'bar',
+    data:{labels:topExits.map(s=>s.sym), datasets:[{label:'AMCs exiting', data:topExits.map(s=>s.num_amcs), backgroundColor:'#f2545b', borderRadius:4}]},
+    options:{plugins:{legend:{display:false}}, scales:{x:{ticks:{color:'#8b93a3'}, grid:{display:false}}, y:{ticks:{color:'#8b93a3'}, grid:{color:'#232833'}}}}
+  });
+}
+
+// ---------- Insights ----------
+function renderInsights(){
+  document.getElementById('insightsWrap').innerHTML = DATA.insights.length ? DATA.insights.map(ins=>`
+    <div class="insight-card ${ins.tone}">
+      <h4>${esc(ins.title)} <span class="tone-pill">${ins.tone}</span></h4>
+      <p class="desc">${esc(ins.desc)}</p>
+      <ul>${ins.items.map(i=>`<li>${esc(i)}</li>`).join('')}</ul>
+    </div>
+  `).join('') : '<div class="empty">Not enough data to generate insights for this period.</div>';
+}
+
+// ---------- Fresh Entries table ----------
+function renderFresh(){
+  const q = document.getElementById('freshSearch').value.toLowerCase();
+  const sort = document.getElementById('freshSort').value;
+  let rows = DATA.fresh_breadth.filter(r => (r.disp+r.sym+r.sector).toLowerCase().includes(q));
+  if (sort==='amcs') rows.sort((a,b)=>b.num_amcs-a.num_amcs);
+  if (sort==='schemes') rows.sort((a,b)=>b.num_schemes-a.num_schemes);
+  if (sort==='perc') rows.sort((a,b)=>b.total_perc-a.total_perc);
+  rows = rows.slice(0,150);
+  document.querySelector('#tblFresh tbody').innerHTML = rows.map(r=>`
+    <tr><td class="name">${esc(r.disp)} <span style="color:var(--text-faint)">(${esc(r.sym)})</span></td>
+    <td>${esc(r.sector)}</td><td>${r.num_amcs}</td><td>${r.num_schemes}</td>
+    <td class="pos">${fmtPct(r.total_perc)}</td><td>${esc(r.latest_month||'—')}</td></tr>
+  `).join('') || '<tr><td colspan="6" class="empty">No matches</td></tr>';
+}
+
+// ---------- Exits table ----------
+function renderExit(){
+  const q = document.getElementById('exitSearch').value.toLowerCase();
+  const sort = document.getElementById('exitSort').value;
+  let rows = DATA.exit_breadth.filter(r => (r.disp+r.sym+r.sector).toLowerCase().includes(q));
+  if (sort==='amcs') rows.sort((a,b)=>b.num_amcs-a.num_amcs);
+  if (sort==='schemes') rows.sort((a,b)=>b.num_schemes-a.num_schemes);
+  rows = rows.slice(0,150);
+  document.querySelector('#tblExit tbody').innerHTML = rows.map(r=>`
+    <tr><td class="name">${esc(r.disp)} <span style="color:var(--text-faint)">(${esc(r.sym)})</span></td>
+    <td>${esc(r.sector)}</td><td>${r.num_amcs}</td><td>${r.num_schemes}</td><td>${esc(r.latest_month||'—')}</td></tr>
+  `).join('') || '<tr><td colspan="5" class="empty">No matches</td></tr>';
+}
+
+// ---------- Additions / Reductions ----------
+function renderMovement(){
+  const topAdd = DATA.addition_breadth.slice().sort((a,b)=>b.total_share_delta-a.total_share_delta).slice(0,80);
+  document.querySelector('#tblAdd tbody').innerHTML = topAdd.map(r=>`
+    <tr><td class="name">${esc(r.disp)} <span style="color:var(--text-faint)">(${esc(r.sym)})</span></td>
+    <td>${esc(r.sector)}</td><td>${r.num_schemes}</td><td class="pos">+${fmtNum(r.total_share_delta)}</td></tr>
+  `).join('') || '<tr><td colspan="4" class="empty">No data</td></tr>';
+
+  const topRed = DATA.reduction_breadth.slice().sort((a,b)=>a.total_share_delta-b.total_share_delta).slice(0,80);
+  document.querySelector('#tblRed tbody').innerHTML = topRed.map(r=>`
+    <tr><td class="name">${esc(r.disp)} <span style="color:var(--text-faint)">(${esc(r.sym)})</span></td>
+    <td>${esc(r.sector)}</td><td>${r.num_schemes}</td><td class="neg">${fmtNum(r.total_share_delta)}</td></tr>
+  `).join('') || '<tr><td colspan="4" class="empty">No data</td></tr>';
+}
+
+// ---------- Rare allocations ----------
+function renderRare(){
+  document.querySelector('#tblRareHeld tbody').innerHTML = DATA.rare_held.map(r=>`
+    <tr><td class="name">${esc(r.disp)} <span style="color:var(--text-faint)">(${esc(r.sym)})</span></td>
+    <td>${esc(r.sector)}</td><td>${r.num_schemes}</td><td>${r.num_amcs}</td></tr>
+  `).join('') || '<tr><td colspan="4" class="empty">No data</td></tr>';
+
+  document.querySelector('#tblRareFresh tbody').innerHTML = DATA.rare_fresh.map(r=>`
+    <tr><td class="name">${esc(r.disp)} <span style="color:var(--text-faint)">(${esc(r.sym)})</span></td>
+    <td>${esc(r.sector)}</td><td>${r.num_schemes}</td><td>${r.num_amcs}</td><td class="pos">${fmtPct(r.total_perc)}</td></tr>
+  `).join('') || '<tr><td colspan="5" class="empty">No data</td></tr>';
+}
+
+// ---------- AMC view ----------
+function renderAmc(){
+  const q = document.getElementById('amcSearch').value.toLowerCase();
+  const actionFilter = document.getElementById('amcActionFilter').value;
+  let rows = DATA.amc_stock.filter(r =>
+    (!actionFilter || r.action === actionFilter) &&
+    (r.amc+r.sym+r.disp).toLowerCase().includes(q)
+  );
+  rows = rows.slice(0, 300);
+  document.querySelector('#tblAmc tbody').innerHTML = rows.map(r=>`
+    <tr><td class="name">${esc(r.amc)}</td><td class="name">${esc(r.disp)} <span style="color:var(--text-faint)">(${esc(r.sym)})</span></td>
+    <td>${esc(r.sector)}</td><td><span class="tag ${r.action}">${r.action.replace('_',' ')}</span></td>
+    <td>${r.num_schemes}</td><td class="${r.share_delta>=0?'pos':'neg'}">${r.share_delta>=0?'+':''}${fmtNum(r.share_delta)}</td></tr>
+  `).join('') || '<tr><td colspan="6" class="empty">No matches</td></tr>';
+}
+
+// ---------- Scheme view ----------
+function renderScheme(){
+  const q = document.getElementById('schemeSearch').value.toLowerCase();
+  const sort = document.getElementById('schemeSort').value;
+  let rows = DATA.scheme_summary.filter(r => (r.amc+r.scheme).toLowerCase().includes(q));
+  if (sort==='momentum_desc') rows.sort((a,b)=>b.net_momentum-a.net_momentum);
+  if (sort==='momentum_asc') rows.sort((a,b)=>a.net_momentum-b.net_momentum);
+  if (sort==='fresh') rows.sort((a,b)=>b.FRESH_ENTRY-a.FRESH_ENTRY);
+  if (sort==='exit') rows.sort((a,b)=>b.EXIT-a.EXIT);
+  rows = rows.slice(0, 300);
+  document.querySelector('#tblScheme tbody').innerHTML = rows.map(r=>`
+    <tr><td class="name">${esc(r.amc)}</td><td class="name">${esc(r.scheme)}</td>
+    <td class="pos">${r.FRESH_ENTRY}</td><td class="neg">${r.EXIT}</td><td class="pos">${r.ADDITION}</td>
+    <td class="neg">${r.REDUCTION}</td><td class="${r.net_momentum>=0?'pos':'neg'}">${r.net_momentum>=0?'+':''}${r.net_momentum}</td>
+    <td>${esc(r.latest_month||'—')}</td></tr>
+  `).join('') || '<tr><td colspan="8" class="empty">No matches</td></tr>';
+}
+
+// ---------- Full re-render, called on load and whenever the period changes ----------
+function renderAll(){
+  renderMeta();
+  renderOverviewCharts();
+  renderInsights();
+  renderFresh();
+  renderExit();
+  renderMovement();
+  renderRare();
+  renderAmc();
+  renderScheme();
+}
+
+document.getElementById('freshSearch').addEventListener('input', renderFresh);
+document.getElementById('freshSort').addEventListener('change', renderFresh);
+document.getElementById('exitSearch').addEventListener('input', renderExit);
+document.getElementById('exitSort').addEventListener('change', renderExit);
+document.getElementById('amcSearch').addEventListener('input', renderAmc);
+document.getElementById('amcActionFilter').addEventListener('change', renderAmc);
+document.getElementById('schemeSearch').addEventListener('input', renderScheme);
+document.getElementById('schemeSort').addEventListener('change', renderScheme);
+
+async function loadReportData(){
+  try {
+    const response = await fetch('scanx_mf_holdings_report_data.json');
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    PERIODS = await response.json();
+    DATA = PERIODS["0"];
+    renderAll();
+  } catch (error) {
+    document.getElementById('metaLine').textContent = 'Unable to load report data';
+    document.getElementById('statsStrip').innerHTML = '<div class="empty">Report data could not be loaded.</div>';
+    console.error('Failed to load report data:', error);
+  }
+}
+
+loadReportData();
+</script>
+</body>
+</html>
