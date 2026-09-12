@@ -6,6 +6,8 @@
 <title>MF Holdings Movement Terminal</title>
 <script src="chart.umd.js"></script>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
 :root{
   --bg:#0c0e12; --bg-elev:#12151b; --bg-card:#151920; --border:#232833;
   --text:#e7ebf0; --text-dim:#8b93a3; --text-faint:#5b6272;
@@ -32,130 +34,192 @@ body{
   margin:0; background:var(--bg); color:var(--text); font-family:var(--sans);
   -webkit-font-smoothing:antialiased;
 }
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+button, input, select{font-family:inherit;}
 
+/* ---------- topbar ---------- */
 .topbar{
-  position:sticky; top:0; z-index:50; display:flex; align-items:center; justify-content:space-between;
-  padding:16px 28px; background:color-mix(in srgb, var(--bg) 88%, transparent);
+  position:sticky; top:0; z-index:60; display:flex; align-items:center; justify-content:space-between;
+  padding:14px 24px; background:color-mix(in srgb, var(--bg) 90%, transparent);
   backdrop-filter:blur(10px); border-bottom:1px solid var(--border);
-  gap:16px; flex-wrap:wrap;
+  gap:14px; flex-wrap:wrap;
 }
 .brand{display:flex; align-items:center; gap:12px;}
 .brand .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent);}
-.brand h1{font-size:16px; margin:0; letter-spacing:.02em; font-weight:700;}
-.brand .sub{font-family:var(--mono); font-size:11px; color:var(--text-faint); margin-top:2px;}
-.topbar-right{display:flex; align-items:center; gap:12px; flex-wrap:wrap;}
-.period-select{
+.brand h1{font-size:15px; margin:0; letter-spacing:.02em; font-weight:700;}
+.brand .sub{font-family:var(--mono); font-size:10.5px; color:var(--text-faint); margin-top:3px;}
+.topbar-right{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+
+.global-search{
   display:flex; align-items:center; gap:8px; background:var(--bg-card); border:1px solid var(--border);
-  border-radius:100px; padding:6px 6px;
+  border-radius:100px; padding:5px 8px 5px 14px; min-width:250px;
+}
+.global-search input{
+  background:transparent; border:none; outline:none; color:var(--text); font-size:12.5px; width:180px;
+}
+.global-search .ico{color:var(--text-faint); font-size:12px;}
+.global-search button{
+  border:none; background:var(--accent); color:#fff; font-size:11px; font-weight:700;
+  padding:5px 12px; border-radius:100px; cursor:pointer;
+}
+
+.period-select{
+  display:flex; align-items:center; gap:4px; background:var(--bg-card); border:1px solid var(--border);
+  border-radius:100px; padding:5px;
 }
 .period-select button{
-  border:none; background:transparent; color:var(--text-dim); font-family:var(--sans); font-size:12px;
-  font-weight:600; padding:6px 14px; border-radius:100px; cursor:pointer; white-space:nowrap;
+  border:none; background:transparent; color:var(--text-dim); font-size:11.5px;
+  font-weight:600; padding:6px 13px; border-radius:100px; cursor:pointer; white-space:nowrap;
 }
 .period-select button.active{background:var(--accent); color:#fff;}
 .theme-toggle{
-  display:flex; align-items:center; gap:8px; background:var(--bg-card); border:1px solid var(--border);
-  border-radius:100px; padding:6px 6px; cursor:pointer; user-select:none;
+  display:flex; align-items:center; gap:4px; background:var(--bg-card); border:1px solid var(--border);
+  border-radius:100px; padding:5px;
 }
 .theme-toggle button{
-  border:none; background:transparent; color:var(--text-dim); font-family:var(--sans); font-size:12px;
-  font-weight:600; padding:6px 12px; border-radius:100px; cursor:pointer;
+  border:none; background:transparent; color:var(--text-dim); font-size:11.5px;
+  font-weight:600; padding:6px 11px; border-radius:100px; cursor:pointer;
 }
 .theme-toggle button.active{background:var(--accent); color:#fff;}
 
+/* ---------- stats ---------- */
 .stats-strip{
-  display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1px;
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:1px;
   background:var(--border); border-bottom:1px solid var(--border);
 }
-.stat{background:var(--bg-elev); padding:16px 20px;}
-.stat .k{font-family:var(--mono); font-size:22px; font-weight:600;}
-.stat .l{font-size:11px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.06em; margin-top:4px;}
+.stat{background:var(--bg-elev); padding:14px 18px;}
+.stat .k{font-family:var(--mono); font-size:20px; font-weight:600;}
+.stat .l{font-size:10px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.06em; margin-top:4px;}
 .stat.bull .k{color:var(--bull);} .stat.bear .k{color:var(--bear);} .stat.watch .k{color:var(--watch);}
+.stat.accent .k{color:var(--accent);}
 
+/* ---------- tabs ---------- */
 nav.tabs{
-  display:flex; gap:4px; overflow-x:auto; padding:14px 24px 0 24px; border-bottom:1px solid var(--border);
-  background:var(--bg);
+  display:flex; gap:2px; overflow-x:auto; padding:12px 20px 0 20px; border-bottom:1px solid var(--border);
+  background:var(--bg); position:sticky; top:63px; z-index:55;
 }
 nav.tabs button{
-  font-family:var(--sans); font-weight:600; font-size:13px; white-space:nowrap;
-  background:transparent; border:none; color:var(--text-faint); padding:10px 16px; cursor:pointer;
+  font-weight:600; font-size:12.5px; white-space:nowrap;
+  background:transparent; border:none; color:var(--text-faint); padding:10px 14px; cursor:pointer;
   border-bottom:2px solid transparent; margin-bottom:-1px;
 }
 nav.tabs button:hover{color:var(--text);}
 nav.tabs button.active{color:var(--accent); border-bottom-color:var(--accent);}
 
-main{padding:24px; max-width:1400px; margin:0 auto;}
+main{padding:22px; max-width:1500px; margin:0 auto;}
 .panel{display:none; animation:fade .25s ease;}
 .panel.active{display:block;}
 @keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);}}
 
-.grid2{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
-.grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:18px;}
-@media(max-width:900px){.grid2,.grid3{grid-template-columns:1fr;}}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+.grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+@media(max-width:1000px){.grid2,.grid3{grid-template-columns:1fr;}}
 
 .card{
   background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius);
-  padding:18px; margin-bottom:18px; box-shadow:var(--shadow);
+  padding:16px; margin-bottom:16px; box-shadow:var(--shadow);
 }
-.card h3{margin:0 0 14px 0; font-size:14px; letter-spacing:.02em; display:flex; align-items:center; gap:8px;}
-.card h3 .badge{font-family:var(--mono); font-size:10px; padding:2px 7px; border-radius:100px; background:var(--accent-soft); color:var(--accent);}
+.card h3{margin:0 0 12px 0; font-size:13.5px; letter-spacing:.02em; display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+.card h3 .badge{font-family:var(--mono); font-size:9.5px; padding:2px 7px; border-radius:100px; background:var(--accent-soft); color:var(--accent); font-weight:600;}
 canvas{max-height:320px;}
 
-table{width:100%; border-collapse:collapse; font-size:13px;}
+/* ---------- tables ---------- */
+table{width:100%; border-collapse:collapse; font-size:12.5px;}
 th{
-  text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-faint);
-  padding:8px 10px; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--bg-card);
+  text-align:left; font-size:9.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-faint);
+  padding:8px 10px; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--bg-card); z-index:2;
 }
-td{padding:9px 10px; border-bottom:1px solid var(--border); font-family:var(--mono); font-size:12.5px;}
+td{padding:8px 10px; border-bottom:1px solid var(--border); font-family:var(--mono); font-size:12px;}
 td.name{font-family:var(--sans); font-weight:500;}
 tr:hover td{background:var(--accent-soft);}
-.table-wrap{max-height:480px; overflow:auto; border:1px solid var(--border); border-radius:8px;}
+tr[data-sym]{cursor:pointer;}
+.table-wrap{max-height:520px; overflow:auto; border:1px solid var(--border); border-radius:8px;}
+.table-wrap table{border-radius:8px;}
 
-.tag{display:inline-block; padding:2px 8px; border-radius:100px; font-size:10.5px; font-weight:700; font-family:var(--mono); letter-spacing:.02em;}
+.tag{display:inline-block; padding:2px 8px; border-radius:100px; font-size:10px; font-weight:700; font-family:var(--mono); letter-spacing:.02em; white-space:nowrap;}
 .tag.FRESH_ENTRY{background:var(--bull-soft); color:var(--bull);}
 .tag.EXIT{background:var(--bear-soft); color:var(--bear);}
 .tag.ADDITION{background:var(--bull-soft); color:var(--bull);}
 .tag.REDUCTION{background:var(--watch-soft); color:var(--watch);}
+.tag.neutral{background:var(--accent-soft); color:var(--text-dim);}
+.tag.bull{background:var(--bull-soft); color:var(--bull);}
+.tag.bear{background:var(--bear-soft); color:var(--bear);}
+.tag.watch{background:var(--watch-soft); color:var(--watch);}
 
 .pos{color:var(--bull);} .neg{color:var(--bear);}
+.mut{color:var(--text-faint);}
 
-.filters{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px;}
+/* ---------- filters ---------- */
+.filters{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; align-items:center;}
 .filters input, .filters select{
   background:var(--bg-elev); border:1px solid var(--border); color:var(--text); border-radius:8px;
-  padding:8px 12px; font-family:var(--sans); font-size:12.5px; outline:none;
+  padding:8px 12px; font-size:12.5px; outline:none;
 }
-.filters input{flex:1; min-width:180px;}
+.filters input[type=text]{flex:1; min-width:170px;}
+.filters input[type=number]{width:110px;}
 .filters input:focus, .filters select:focus{border-color:var(--accent);}
+.filters .lbl{font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-faint);}
 
+/* ---------- insights ---------- */
 .insight-card{
-  border-left:3px solid var(--accent); background:var(--bg-card); border:1px solid var(--border);
-  border-left-width:3px; border-radius:var(--radius); padding:18px; margin-bottom:16px; box-shadow:var(--shadow);
+  background:var(--bg-card); border:1px solid var(--border);
+  border-left:3px solid var(--accent); border-radius:var(--radius);
+  padding:16px; margin-bottom:14px; box-shadow:var(--shadow);
 }
 .insight-card.bullish{border-left-color:var(--bull);}
 .insight-card.bearish{border-left-color:var(--bear);}
 .insight-card.watch{border-left-color:var(--watch);}
-.insight-card h4{margin:0 0 6px 0; font-size:15px; display:flex; align-items:center; gap:8px;}
-.insight-card .tone-pill{font-family:var(--mono); font-size:9.5px; text-transform:uppercase; padding:2px 8px; border-radius:100px;}
+.insight-card h4{margin:0 0 6px 0; font-size:14.5px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+.insight-card .tone-pill{font-family:var(--mono); font-size:9px; text-transform:uppercase; padding:2px 8px; border-radius:100px; letter-spacing:.05em;}
 .insight-card.bullish .tone-pill{background:var(--bull-soft); color:var(--bull);}
 .insight-card.bearish .tone-pill{background:var(--bear-soft); color:var(--bear);}
 .insight-card.watch .tone-pill{background:var(--watch-soft); color:var(--watch);}
-.insight-card p.desc{color:var(--text-dim); font-size:13px; margin:0 0 12px 0; line-height:1.5;}
+.insight-card p.desc{color:var(--text-dim); font-size:12.5px; margin:0 0 10px 0; line-height:1.55;}
 .insight-card ul{margin:0; padding-left:0; list-style:none;}
 .insight-card li{
-  font-family:var(--mono); font-size:12.5px; padding:8px 0; border-top:1px dashed var(--border);
+  font-family:var(--mono); font-size:12px; padding:7px 0; border-top:1px dashed var(--border);
+  display:flex; justify-content:space-between; gap:12px; align-items:baseline;
 }
 .insight-card li:first-child{border-top:none;}
+.insight-card li.clickable{cursor:pointer;}
+.insight-card li.clickable:hover{color:var(--accent);}
+.insight-card li .li-right{color:var(--text-faint); font-size:11px; white-space:nowrap;}
 
-.empty{color:var(--text-faint); font-size:13px; padding:24px; text-align:center; font-family:var(--mono);}
-.footer{max-width:920px; margin:0 auto; text-align:center; color:var(--text-faint); font-size:11px; font-family:var(--mono); line-height:1.55; padding:30px 20px;}
+/* ---------- KPI / chips ---------- */
+.kpi-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; margin-bottom:16px;}
+.kpi{background:var(--bg-elev); border:1px solid var(--border); border-radius:10px; padding:11px 13px;}
+.kpi .v{font-family:var(--mono); font-size:19px; font-weight:600;}
+.kpi .l{font-size:9.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-faint); margin-top:4px;}
+.kpi.bull .v{color:var(--bull);} .kpi.bear .v{color:var(--bear);}
+.kpi.watch .v{color:var(--watch);} .kpi.accent .v{color:var(--accent);}
+
+.stock-head{
+  display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;
+  padding-bottom:14px; margin-bottom:14px; border-bottom:1px solid var(--border);
+}
+.stock-head h2{margin:0; font-size:19px; letter-spacing:-.01em;}
+.stock-head .meta{font-family:var(--mono); font-size:11.5px; color:var(--text-faint); margin-top:5px;}
+
+.empty{color:var(--text-faint); font-size:12.5px; padding:26px; text-align:center; font-family:var(--mono);}
+
+.footer{
+  max-width:960px; margin:0 auto; text-align:center; color:var(--text-faint);
+  font-size:10.5px; font-family:var(--mono); line-height:1.55; padding:28px 20px 40px;
+}
 .footer .credit{display:block; font-size:9px; margin-top:5px;}
 .footer .credit a{color:inherit; text-decoration:none;}
 .footer .credit a:hover{text-decoration:underline;}
 .footer .disclaimer{display:block; font-family:var(--sans); font-size:10px; line-height:1.5; margin:12px auto 0; max-width:760px;}
 .footer .disclaimer strong{color:var(--text-dim);}
+
 ::-webkit-scrollbar{height:8px; width:8px;}
 ::-webkit-scrollbar-thumb{background:var(--border); border-radius:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+
+.spinner{
+  display:inline-block; width:12px; height:12px; border:2px solid var(--border);
+  border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; vertical-align:-2px; margin-right:6px;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
 </style>
 </head>
 <body>
@@ -169,6 +233,12 @@ tr:hover td{background:var(--accent-soft);}
     </div>
   </div>
   <div class="topbar-right">
+    <div class="global-search">
+      <span class="ico">⌕</span>
+      <input type="text" id="globalStockSearch" list="stockList" placeholder="Jump to any stock…" autocomplete="off">
+      <datalist id="stockList"></datalist>
+      <button id="globalStockGo">Open</button>
+    </div>
     <div class="period-select" id="periodSelect">
       <button data-period="0" class="active">Current Month</button>
       <button data-period="1">Previous Month</button>
@@ -185,17 +255,20 @@ tr:hover td{background:var(--accent-soft);}
 
 <nav class="tabs" id="tabs">
   <button data-panel="overview" class="active">Overview</button>
-  <button data-panel="insights">Insights</button>
+  <button data-panel="picks">Picks &amp; Insights</button>
+  <button data-panel="stock">Stock Explorer</button>
+  <button data-panel="screener">Screener</button>
   <button data-panel="fresh">Fresh Entries</button>
   <button data-panel="exits">Exits</button>
   <button data-panel="movement">Additions / Reductions</button>
-  <button data-panel="rare">Rare Allocations</button>
+  <button data-panel="rare">Rare &amp; Unique</button>
   <button data-panel="amc">AMC View</button>
   <button data-panel="scheme">Scheme View</button>
 </nav>
 
 <main>
 
+  <!-- ============ OVERVIEW ============ -->
   <section class="panel active" id="panel-overview">
     <div class="grid2">
       <div class="card"><h3>Action Mix <span class="badge">latest vs prev month</span></h3><canvas id="chartActionMix"></canvas></div>
@@ -205,12 +278,71 @@ tr:hover td{background:var(--accent-soft);}
       <div class="card"><h3>Top Fresh Entries <span class="badge">by AMC breadth</span></h3><canvas id="chartTopFresh"></canvas></div>
       <div class="card"><h3>Top Exits <span class="badge">by AMC breadth</span></h3><canvas id="chartTopExits"></canvas></div>
     </div>
+    <div class="grid2">
+      <div class="card"><h3>Highest Conviction Scores <span class="badge">net accumulation</span></h3><canvas id="chartConviction"></canvas></div>
+      <div class="card"><h3>AMC Net Momentum <span class="badge">scheme-level aggregate</span></h3><canvas id="chartAmcMomentum"></canvas></div>
+    </div>
   </section>
 
-  <section class="panel" id="panel-insights">
-    <div id="insightsWrap"></div>
+  <!-- ============ PICKS ============ -->
+  <section class="panel" id="panel-picks">
+    <div id="narrativeWrap"></div>
+    <div class="grid2" id="picksGrid"></div>
   </section>
 
+  <!-- ============ STOCK EXPLORER ============ -->
+  <section class="panel" id="panel-stock">
+    <div class="card">
+      <h3>Stock Explorer <span class="badge">search any stock · allocations · entry / exit</span></h3>
+      <div class="filters">
+        <input type="text" id="explorerSearch" list="stockList2" placeholder="Type a stock name or symbol (e.g. RELIANCE, HDFC Bank)…" autocomplete="off">
+        <datalist id="stockList2"></datalist>
+        <button class="period-select" style="padding:0;border:none;background:none;"></button>
+      </div>
+      <div id="explorerBody"><div class="empty">Search for a stock above to see every AMC / scheme action, allocation and 3-month trend.</div></div>
+    </div>
+  </section>
+
+  <!-- ============ SCREENER ============ -->
+  <section class="panel" id="panel-screener">
+    <div class="card">
+      <h3>Screener <span class="badge">combine every filter</span></h3>
+      <div class="filters">
+        <input type="text" id="scrSearch" placeholder="Search stock / symbol / sector…">
+        <select id="scrSector"><option value="">All sectors</option></select>
+        <select id="scrSignal">
+          <option value="">All signals</option>
+          <option value="strong_accum">Strong Accumulation</option>
+          <option value="accum">Accumulation</option>
+          <option value="neutral">Neutral</option>
+          <option value="dist">Distribution</option>
+          <option value="strong_dist">Heavy Distribution</option>
+        </select>
+        <span class="lbl">Min fresh AMCs</span>
+        <input type="number" id="scrMinFresh" min="0" value="0">
+        <span class="lbl">Min add AMCs</span>
+        <input type="number" id="scrMinAdd" min="0" value="0">
+        <select id="scrSort">
+          <option value="score">Sort: conviction score</option>
+          <option value="fresh">Sort: fresh-entry breadth</option>
+          <option value="add">Sort: addition breadth</option>
+          <option value="exit">Sort: exit breadth</option>
+          <option value="delta">Sort: net Δ shares</option>
+          <option value="perc">Sort: combined alloc %</option>
+          <option value="name">Sort: name (A→Z)</option>
+        </select>
+      </div>
+      <div id="scrCount" class="mut" style="font-family:var(--mono);font-size:11px;margin-bottom:10px;"></div>
+      <div class="table-wrap"><table id="tblScreener">
+        <thead><tr>
+          <th>Stock</th><th>Sector</th><th>Signal</th><th>Fresh AMCs</th><th>Exit AMCs</th>
+          <th>Add AMCs</th><th>Red AMCs</th><th>Schemes</th><th>Combined %</th><th>Net Δ Shares</th><th>Score</th>
+        </tr></thead><tbody></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <!-- ============ FRESH ============ -->
   <section class="panel" id="panel-fresh">
     <div class="card">
       <h3>Fresh Entries — Ranked by Breadth &amp; Conviction</h3>
@@ -226,6 +358,7 @@ tr:hover td{background:var(--accent-soft);}
     </div>
   </section>
 
+  <!-- ============ EXITS ============ -->
   <section class="panel" id="panel-exits">
     <div class="card">
       <h3>Exits — Ranked by Breadth</h3>
@@ -240,6 +373,7 @@ tr:hover td{background:var(--accent-soft);}
     </div>
   </section>
 
+  <!-- ============ MOVEMENT ============ -->
   <section class="panel" id="panel-movement">
     <div class="grid2">
       <div class="card">
@@ -253,6 +387,7 @@ tr:hover td{background:var(--accent-soft);}
     </div>
   </section>
 
+  <!-- ============ RARE ============ -->
   <section class="panel" id="panel-rare">
     <div class="grid2">
       <div class="card">
@@ -266,6 +401,7 @@ tr:hover td{background:var(--accent-soft);}
     </div>
   </section>
 
+  <!-- ============ AMC ============ -->
   <section class="panel" id="panel-amc">
     <div class="card">
       <h3>AMC-level Net Stock Actions</h3>
@@ -278,11 +414,17 @@ tr:hover td{background:var(--accent-soft);}
           <option value="ADDITION">Addition</option>
           <option value="REDUCTION">Reduction</option>
         </select>
+        <select id="amcNameFilter"><option value="">All AMCs</option></select>
+        <select id="amcSort">
+          <option value="delta">Sort: Δ shares</option>
+          <option value="schemes">Sort: schemes</option>
+        </select>
       </div>
       <div class="table-wrap"><table id="tblAmc"><thead><tr><th>AMC</th><th>Stock</th><th>Sector</th><th>Action</th><th>Schemes</th><th>Δ Shares</th></tr></thead><tbody></tbody></table></div>
     </div>
   </section>
 
+  <!-- ============ SCHEME ============ -->
   <section class="panel" id="panel-scheme">
     <div class="card">
       <h3>Scheme-level Activity Summary</h3>
@@ -293,294 +435,938 @@ tr:hover td{background:var(--accent-soft);}
           <option value="momentum_asc">Sort: momentum (bearish first)</option>
           <option value="fresh">Sort: most fresh entries</option>
           <option value="exit">Sort: most exits</option>
+          <option value="size">Sort: portfolio size</option>
         </select>
       </div>
-      <div class="table-wrap"><table id="tblScheme"><thead><tr><th>AMC</th><th>Scheme</th><th>Fresh</th><th>Exit</th><th>Add</th><th>Reduce</th><th>Net Momentum</th><th>Month</th></tr></thead><tbody></tbody></table></div>
+      <div class="table-wrap"><table id="tblScheme"><thead><tr><th>AMC</th><th>Scheme</th><th>Fresh</th><th>Exit</th><th>Add</th><th>Reduce</th><th>Holdings</th><th>Net Momentum</th><th>Month</th></tr></thead><tbody></tbody></table></div>
     </div>
   </section>
 
 </main>
 
-<div class="footer">Report generated: 01 Aug 2026, 00:00 IST · Mutual Fund Holdings · Toggle "Period" above to view the current month or either of the two prior month-over-month periods<span class="credit">Made with ❤️ by <a href="mailto:hiren.daftari@gmail.com">Me</a></span><span class="disclaimer"><strong>Disclaimer:</strong> “Current Month” shows activity reported for the last month. Data is updated on the 1st of every month and may be inaccurate, incomplete, or delayed. It is provided for informational purposes only and is not investment advice or a recommendation to buy or sell any security.</span></div>
+<div class="footer">Mutual Fund Holdings Movement Terminal · Toggle "Period" above to view the current month or either of the two prior month-over-month periods<span class="credit">Made with ❤️ by <a href="mailto:hiren.daftari@gmail.com">Me</a></span><span class="disclaimer"><strong>Disclaimer:</strong> “Current Month” shows activity reported for the last month. Data is updated on the 1st of every month and may be inaccurate, incomplete, or delayed. It is provided for informational purposes only and is not investment advice or a recommendation to buy or sell any security.</span></div>
 
 <script>
+/* =========================================================================
+   STATE
+   ========================================================================= */
 let PERIODS = {};
-let DATA;
-let chartInstances = [];
+let DATA = null;
+let PERIOD = '0';
 
-function setTheme(t){
-  document.documentElement.setAttribute('data-theme', t);
-  document.getElementById('btnDark').classList.toggle('active', t==='dark');
-  document.getElementById('btnLight').classList.toggle('active', t==='light');
-  chartInstances.forEach(c => c.update());
-}
+const State = { charts: [], stockSym: null };
+const IndexCache = new Map();
+
+/* =========================================================================
+   SMALL HELPERS
+   ========================================================================= */
+const $ = id => document.getElementById(id);
+
+function num(v){ const n = Number(v); return isFinite(n) ? n : 0; }
 
 function fmtNum(n){
   if (n === null || n === undefined) return '—';
-  return Number(n).toLocaleString(undefined, {maximumFractionDigits: 2});
+  return Number(n).toLocaleString(undefined, { maximumFractionDigits: 2 });
 }
 function fmtPct(n){
   if (n === null || n === undefined) return '—';
   const v = Number(n);
-  return (v>=0?'+':'') + v.toFixed(2) + '%';
+  return (v >= 0 ? '+' : '') + v.toFixed(2) + '%';
 }
-function esc(s){ const d=document.createElement('div'); d.innerText = (s===undefined||s===null)?'':s; return d.innerHTML; }
+function fmtDelta(n){
+  if (n === null || n === undefined) return '—';
+  const v = Number(n);
+  const a = Math.abs(v);
+  let s;
+  if (a >= 1e7) s = (v / 1e7).toFixed(2) + 'Cr';
+  else if (a >= 1e5) s = (v / 1e5).toFixed(2) + 'L';
+  else if (a >= 1e3) s = (v / 1e3).toFixed(1) + 'K';
+  else s = v.toFixed(a < 10 ? 2 : 0);
+  return (v > 0 ? '+' : '') + s;
+}
+function esc(s){
+  const d = document.createElement('div');
+  d.innerText = (s === undefined || s === null) ? '' : s;
+  return d.innerHTML;
+}
+function cssVar(name){
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
 
-// ---------- Content tabs (Overview / Insights / etc.) ----------
-document.querySelectorAll('nav.tabs button').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
-    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('panel-'+btn.dataset.panel).classList.add('active');
+/* =========================================================================
+   INDEX BUILDER — turns one period's report into a per-stock master index
+   ========================================================================= */
+function buildIndex(d){
+  const stocks = new Map();
+  const amcRows = new Map();
+
+  const ensure = (sym, disp, sector) => {
+    const key = (sym || disp || '—').toString();
+    let r = stocks.get(key);
+    if (!r){
+      r = {
+        sym: key,
+        disp: disp || key,
+        sector: sector || '—',
+        cnt:    { FRESH_ENTRY:0, EXIT:0, ADDITION:0, REDUCTION:0 },
+        amcCnt: { FRESH_ENTRY:0, EXIT:0, ADDITION:0, REDUCTION:0 },
+        amcSet: { FRESH_ENTRY:new Set(), EXIT:new Set(), ADDITION:new Set(), REDUCTION:new Set() },
+        totalPerc: 0,
+        netDelta: 0,
+        heldSchemes: null,
+        heldAmcs: null,
+        latestMonth: null
+      };
+      stocks.set(key, r);
+    }
+    if (disp && r.disp === r.sym) r.disp = disp;
+    if (sector && r.sector === '—') r.sector = sector;
+    return r;
+  };
+
+  (d.fresh_breadth || []).forEach(x=>{
+    const r = ensure(x.sym, x.disp, x.sector);
+    r.cnt.FRESH_ENTRY    = Math.max(r.cnt.FRESH_ENTRY, num(x.num_schemes));
+    r.amcCnt.FRESH_ENTRY = Math.max(r.amcCnt.FRESH_ENTRY, num(x.num_amcs));
+    r.totalPerc          = Math.max(r.totalPerc, num(x.total_perc));
+    if (x.latest_month) r.latestMonth = x.latest_month;
   });
+
+  (d.exit_breadth || []).forEach(x=>{
+    const r = ensure(x.sym, x.disp, x.sector);
+    r.cnt.EXIT    = Math.max(r.cnt.EXIT, num(x.num_schemes));
+    r.amcCnt.EXIT = Math.max(r.amcCnt.EXIT, num(x.num_amcs));
+    if (x.latest_month && !r.latestMonth) r.latestMonth = x.latest_month;
+  });
+
+  const hasAddBreadth = Array.isArray(d.addition_breadth) && d.addition_breadth.length;
+  const hasRedBreadth = Array.isArray(d.reduction_breadth) && d.reduction_breadth.length;
+
+  (d.addition_breadth || []).forEach(x=>{
+    const r = ensure(x.sym, x.disp, x.sector);
+    r.cnt.ADDITION = Math.max(r.cnt.ADDITION, num(x.num_schemes));
+    r.netDelta += num(x.total_share_delta);
+  });
+
+  (d.reduction_breadth || []).forEach(x=>{
+    const r = ensure(x.sym, x.disp, x.sector);
+    r.cnt.REDUCTION = Math.max(r.cnt.REDUCTION, num(x.num_schemes));
+    r.netDelta += num(x.total_share_delta);
+  });
+
+  (d.rare_held || []).forEach(x=>{
+    const r = ensure(x.sym, x.disp, x.sector);
+    if (r.heldSchemes === null) r.heldSchemes = num(x.num_schemes);
+    if (r.heldAmcs === null)    r.heldAmcs    = num(x.num_amcs);
+  });
+
+  (d.rare_fresh || []).forEach(x=>{
+    const r = ensure(x.sym, x.disp, x.sector);
+    r.cnt.FRESH_ENTRY    = Math.max(r.cnt.FRESH_ENTRY, num(x.num_schemes));
+    r.amcCnt.FRESH_ENTRY = Math.max(r.amcCnt.FRESH_ENTRY, num(x.num_amcs));
+    r.totalPerc          = Math.max(r.totalPerc, num(x.total_perc));
+  });
+
+  (d.amc_stock || []).forEach(x=>{
+    const r = ensure(x.sym, x.disp, x.sector);
+    const a = x.action;
+    if (r.amcSet[a]) r.amcSet[a].add(x.amc);
+    if (!hasAddBreadth && !hasRedBreadth && (a === 'ADDITION' || a === 'REDUCTION')){
+      r.netDelta += num(x.share_delta);
+    }
+    let arr = amcRows.get(r.sym);
+    if (!arr){ arr = []; amcRows.set(r.sym, arr); }
+    arr.push(x);
+  });
+
+  // Sync AMC counts from the real AMC sets, and derive scheme counts if breadth missing
+  stocks.forEach(r=>{
+    ['FRESH_ENTRY','EXIT','ADDITION','REDUCTION'].forEach(a=>{
+      r.amcCnt[a] = Math.max(r.amcCnt[a], r.amcSet[a].size);
+    });
+  });
+
+  return { stocks, amcRows };
+}
+
+function getIndex(key){
+  if (IndexCache.has(key)) return IndexCache.get(key);
+  const d = PERIODS[key];
+  const idx = d ? buildIndex(d) : { stocks:new Map(), amcRows:new Map() };
+  IndexCache.set(key, idx);
+  return idx;
+}
+
+/* =========================================================================
+   SCORING / SIGNALS
+   ========================================================================= */
+function scoreOf(r){
+  const s =
+      (r.amcCnt.FRESH_ENTRY * 3.0  + r.cnt.FRESH_ENTRY * 0.40)
+    + (r.amcCnt.ADDITION    * 1.5  + r.cnt.ADDITION    * 0.15)
+    - (r.amcCnt.EXIT        * 2.5  + r.cnt.EXIT        * 0.35)
+    - (r.amcCnt.REDUCTION   * 1.2  + r.cnt.REDUCTION   * 0.12)
+    + Math.max(0, r.totalPerc) * 1.5;
+  return Math.round(s * 10) / 10;
+}
+function getScore(r){
+  if (r.__score === undefined) r.__score = scoreOf(r);
+  return r.__score;
+}
+function signalOf(r){
+  const s = getScore(r);
+  if (s >= 12)  return { key:'strong_accum', label:'Strong Accumulation', cls:'bull' };
+  if (s >= 4)   return { key:'accum',        label:'Accumulation',        cls:'bull' };
+  if (s <= -12) return { key:'strong_dist',  label:'Heavy Distribution',  cls:'bear' };
+  if (s <= -4)  return { key:'dist',         label:'Distribution',        cls:'bear' };
+  return { key:'neutral', label:'Neutral', cls:'watch' };
+}
+
+const sortFresh = r => r.amcCnt.FRESH_ENTRY * 1000 + r.cnt.FRESH_ENTRY;
+const sortExit  = r => r.amcCnt.EXIT        * 1000 + r.cnt.EXIT;
+const sortAdd   = r => r.amcCnt.ADDITION    * 1000 + r.cnt.ADDITION;
+const sortRed   = r => r.amcCnt.REDUCTION   * 1000 + r.cnt.REDUCTION;
+
+/* =========================================================================
+   THEME
+   ========================================================================= */
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  $('btnDark').classList.toggle('active', t === 'dark');
+  $('btnLight').classList.toggle('active', t === 'light');
+  if (DATA) renderOverviewCharts();
+}
+
+/* =========================================================================
+   NAVIGATION
+   ========================================================================= */
+function activatePanel(name){
+  document.querySelectorAll('nav.tabs button').forEach(b => b.classList.toggle('active', b.dataset.panel === name));
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + name));
+}
+document.querySelectorAll('nav.tabs button').forEach(btn=>{
+  btn.addEventListener('click', ()=> activatePanel(btn.dataset.panel));
 });
 
-// ---------- Period selector (Current / Previous / 2 Months Ago) ----------
+/* =========================================================================
+   PERIOD SELECTOR
+   ========================================================================= */
 document.querySelectorAll('#periodSelect button').forEach(btn=>{
   btn.addEventListener('click', ()=>{
     const key = btn.dataset.period;
     if (!PERIODS[key]) return;
-    document.querySelectorAll('#periodSelect button').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
+    PERIOD = key;
     DATA = PERIODS[key];
+    document.querySelectorAll('#periodSelect button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
     renderAll();
   });
 });
 
-// ---------- Meta + Stats strip ----------
+/* =========================================================================
+   META + STATS
+   ========================================================================= */
 function renderMeta(){
-  const monthTxt = DATA.meta.period_month ? ` · reporting month ${DATA.meta.period_month}` : '';
-  document.getElementById('metaLine').textContent =
-    `${DATA.meta.scheme_count.toLocaleString()} schemes · ${DATA.meta.amc_count.toLocaleString()} AMCs · ${DATA.meta.record_count.toLocaleString()} holding rows${monthTxt}`;
+  const m = DATA.meta || {};
+  const monthTxt = m.period_month ? ` · reporting month ${m.period_month}` : '';
+  $('metaLine').textContent =
+    `${num(m.scheme_count).toLocaleString()} schemes · ${num(m.amc_count).toLocaleString()} AMCs · ${num(m.record_count).toLocaleString()} holding rows${monthTxt}`;
+
+  const idx = getIndex(PERIOD);
+  const touched = idx.stocks.size;
 
   const stats = [
-    {k: DATA.meta.fresh_count, l: 'Fresh Entries', cls:'bull'},
-    {k: DATA.meta.exit_count, l: 'Exits', cls:'bear'},
-    {k: DATA.meta.addition_count, l: 'Additions', cls:'bull'},
-    {k: DATA.meta.reduction_count, l: 'Reductions', cls:'watch'},
-    {k: DATA.meta.unique_stocks, l: 'Unique Stocks Touched', cls:''},
-    {k: DATA.meta.parse_errors, l: 'Rows Skipped', cls:''},
+    { k: m.fresh_count,     l:'Fresh Entries',        cls:'bull' },
+    { k: m.exit_count,      l:'Exits',                cls:'bear' },
+    { k: m.addition_count,  l:'Additions',            cls:'bull' },
+    { k: m.reduction_count, l:'Reductions',           cls:'watch' },
+    { k: touched,           l:'Unique Stocks Touched',cls:'accent' },
+    { k: m.unique_stocks,   l:'Stocks In Universe',   cls:'' },
+    { k: m.parse_errors,    l:'Rows Skipped',         cls:'' }
   ];
-  document.getElementById('statsStrip').innerHTML = stats.map(s=>
-    `<div class="stat ${s.cls}"><div class="k">${Number(s.k).toLocaleString()}</div><div class="l">${s.l}</div></div>`
+  $('statsStrip').innerHTML = stats.map(s=>
+    `<div class="stat ${s.cls}"><div class="k">${num(s.k).toLocaleString()}</div><div class="l">${s.l}</div></div>`
   ).join('');
 }
 
-// ---------- Overview charts ----------
-function makeChart(ctx, config){
-  if (typeof Chart === 'undefined') {
-    ctx.replaceWith(Object.assign(document.createElement('div'), {
-      className: 'empty',
-      textContent: 'Charts are unavailable because Chart.js could not be loaded.'
-    }));
+/* =========================================================================
+   CHARTS
+   ========================================================================= */
+function destroyCharts(){
+  State.charts.forEach(c => { try { c.destroy(); } catch(e){} });
+  State.charts = [];
+}
+function makeChart(canvas, config){
+  if (!canvas) return null;
+  try {
+    const c = new Chart(canvas, config);
+    State.charts.push(c);
+    return c;
+  } catch(e){
+    console.warn('chart error', e);
     return null;
   }
-  const c = new Chart(ctx, config);
-  chartInstances.push(c);
-  return c;
-}
-
-function destroyCharts(){
-  chartInstances.forEach(c => { try { c.destroy(); } catch(e) {} });
-  chartInstances = [];
 }
 
 function renderOverviewCharts(){
+  if (typeof Chart === 'undefined'){
+    $('panel-overview').innerHTML = '<div class="card"><div class="empty">Charts are unavailable because Chart.js could not be loaded.</div></div>';
+    return;
+  }
   destroyCharts();
 
-  const canvasIds = ['chartActionMix','chartSectorFlow','chartTopFresh','chartTopExits'];
-  canvasIds.forEach(id=>{
-    const old = document.getElementById(id);
-    if (old && old.tagName === 'DIV'){
-      // A previous "Chart.js unavailable" placeholder replaced the canvas; nothing to restore into.
-      return;
+  const dim = cssVar('--text-dim') || '#8b93a3';
+  const grid = cssVar('--border') || '#232833';
+  const bull = cssVar('--bull') || '#3ecf8e';
+  const bear = cssVar('--bear') || '#f2545b';
+  const watch = cssVar('--watch') || '#e8b34a';
+  const accent = cssVar('--accent') || '#d97757';
+
+  const m = DATA.meta || {};
+  makeChart($('chartActionMix'), {
+    type:'doughnut',
+    data:{
+      labels:['Fresh Entry','Addition','Reduction','Exit'],
+      datasets:[{
+        data:[num(m.fresh_count), num(m.addition_count), num(m.reduction_count), num(m.exit_count)],
+        backgroundColor:[bull, '#5fb0ff', watch, bear],
+        borderWidth:0
+      }]
+    },
+    options:{ plugins:{ legend:{ position:'bottom', labels:{ color:dim, font:{ family:"'Inter'" }, boxWidth:10 } } } }
+  });
+
+  const sf = (DATA.sector_flow || []).slice(0, 8).concat((DATA.sector_flow || []).slice(-4));
+  makeChart($('chartSectorFlow'), {
+    type:'bar',
+    data:{
+      labels: sf.map(s=>s.sector),
+      datasets:[{
+        label:'Net momentum',
+        data: sf.map(s=>num(s.net_momentum)),
+        backgroundColor: sf.map(s=> num(s.net_momentum) >= 0 ? bull : bear),
+        borderRadius:4
+      }]
+    },
+    options:{
+      indexAxis:'y',
+      plugins:{ legend:{ display:false } },
+      scales:{
+        x:{ ticks:{ color:dim }, grid:{ color:grid } },
+        y:{ ticks:{ color:dim, font:{ size:10 } }, grid:{ display:false } }
+      }
     }
   });
 
-  const elActionMix = document.getElementById('chartActionMix');
-  if (elActionMix) makeChart(elActionMix, {
-    type: 'doughnut',
-    data: {
-      labels: ['Fresh Entry','Addition','Reduction','Exit'],
-      datasets: [{
-        data: [DATA.meta.fresh_count, DATA.meta.addition_count, DATA.meta.reduction_count, DATA.meta.exit_count],
-        backgroundColor: ['#3ecf8e','#5fb0ff','#e8b34a','#f2545b'],
-        borderWidth: 0,
+  const topFresh = (DATA.fresh_breadth || []).slice().sort((a,b)=> num(b.num_amcs) - num(a.num_amcs)).slice(0,10);
+  makeChart($('chartTopFresh'), {
+    type:'bar',
+    data:{ labels: topFresh.map(s=>s.sym), datasets:[{ label:'AMCs entering fresh', data: topFresh.map(s=>num(s.num_amcs)), backgroundColor:bull, borderRadius:4 }] },
+    options:{ plugins:{ legend:{ display:false } }, scales:{ x:{ ticks:{ color:dim }, grid:{ display:false } }, y:{ ticks:{ color:dim }, grid:{ color:grid } } } }
+  });
+
+  const topExits = (DATA.exit_breadth || []).slice().sort((a,b)=> num(b.num_amcs) - num(a.num_amcs)).slice(0,10);
+  makeChart($('chartTopExits'), {
+    type:'bar',
+    data:{ labels: topExits.map(s=>s.sym), datasets:[{ label:'AMCs exiting', data: topExits.map(s=>num(s.num_amcs)), backgroundColor:bear, borderRadius:4 }] },
+    options:{ plugins:{ legend:{ display:false } }, scales:{ x:{ ticks:{ color:dim }, grid:{ display:false } }, y:{ ticks:{ color:dim }, grid:{ color:grid } } } }
+  });
+
+  // Highest conviction scores
+  const idx = getIndex(PERIOD);
+  const topScore = Array.from(idx.stocks.values())
+    .filter(r => (r.cnt.FRESH_ENTRY + r.cnt.ADDITION) > 0)
+    .sort((a,b)=> getScore(b) - getScore(a))
+    .slice(0,12);
+  makeChart($('chartConviction'), {
+    type:'bar',
+    data:{
+      labels: topScore.map(r=>r.sym),
+      datasets:[{
+        label:'Conviction score',
+        data: topScore.map(r=>getScore(r)),
+        backgroundColor: topScore.map(r=> getScore(r) >= 0 ? bull : bear),
+        borderRadius:4
       }]
     },
-    options: {plugins:{legend:{position:'bottom', labels:{color: '#8b93a3', font:{family:"'Inter'"}}}}}
+    options:{ plugins:{ legend:{ display:false } }, scales:{ x:{ ticks:{ color:dim }, grid:{ display:false } }, y:{ ticks:{ color:dim }, grid:{ color:grid } } } }
   });
 
-  const sf = DATA.sector_flow.slice(0,8).concat(DATA.sector_flow.slice(-4));
-  const elSectorFlow = document.getElementById('chartSectorFlow');
-  if (elSectorFlow) makeChart(elSectorFlow, {
-    type: 'bar',
-    data: {
-      labels: sf.map(s=>s.sector),
-      datasets: [{
-        label: 'Net momentum',
-        data: sf.map(s=>s.net_momentum),
-        backgroundColor: sf.map(s=>s.net_momentum>=0 ? '#3ecf8e' : '#f2545b'),
-        borderRadius: 4,
+  // AMC net momentum
+  const amcAgg = new Map();
+  (DATA.scheme_summary || []).forEach(s=>{
+    amcAgg.set(s.amc, (amcAgg.get(s.amc) || 0) + num(s.net_momentum));
+  });
+  const amcArr = Array.from(amcAgg.entries()).sort((a,b)=> b[1] - a[1]);
+  const amcTop = amcArr.slice(0,8).concat(amcArr.slice(-8));
+  makeChart($('chartAmcMomentum'), {
+    type:'bar',
+    data:{
+      labels: amcTop.map(a=>a[0].replace(' Mutual Fund','').replace(' Asset Management','')),
+      datasets:[{
+        label:'Net momentum',
+        data: amcTop.map(a=>a[1]),
+        backgroundColor: amcTop.map(a=> a[1] >= 0 ? accent : bear),
+        borderRadius:4
       }]
     },
-    options: {indexAxis:'y', plugins:{legend:{display:false}},
-      scales:{x:{ticks:{color:'#8b93a3'}, grid:{color:'#232833'}}, y:{ticks:{color:'#8b93a3'}, grid:{display:false}}}}
-  });
-
-  const topFresh = DATA.fresh_breadth.slice().sort((a,b)=>b.num_amcs-a.num_amcs).slice(0,10);
-  const elTopFresh = document.getElementById('chartTopFresh');
-  if (elTopFresh) makeChart(elTopFresh, {
-    type:'bar',
-    data:{labels:topFresh.map(s=>s.sym), datasets:[{label:'AMCs entering fresh', data:topFresh.map(s=>s.num_amcs), backgroundColor:'#3ecf8e', borderRadius:4}]},
-    options:{plugins:{legend:{display:false}}, scales:{x:{ticks:{color:'#8b93a3'}, grid:{display:false}}, y:{ticks:{color:'#8b93a3'}, grid:{color:'#232833'}}}}
-  });
-
-  const topExits = DATA.exit_breadth.slice().sort((a,b)=>b.num_amcs-a.num_amcs).slice(0,10);
-  const elTopExits = document.getElementById('chartTopExits');
-  if (elTopExits) makeChart(elTopExits, {
-    type:'bar',
-    data:{labels:topExits.map(s=>s.sym), datasets:[{label:'AMCs exiting', data:topExits.map(s=>s.num_amcs), backgroundColor:'#f2545b', borderRadius:4}]},
-    options:{plugins:{legend:{display:false}}, scales:{x:{ticks:{color:'#8b93a3'}, grid:{display:false}}, y:{ticks:{color:'#8b93a3'}, grid:{color:'#232833'}}}}
+    options:{
+      indexAxis:'y',
+      plugins:{ legend:{ display:false } },
+      scales:{
+        x:{ ticks:{ color:dim }, grid:{ color:grid } },
+        y:{ ticks:{ color:dim, font:{ size:9.5 } }, grid:{ display:false } }
+      }
+    }
   });
 }
 
-// ---------- Insights ----------
-function renderInsights(){
-  document.getElementById('insightsWrap').innerHTML = DATA.insights.length ? DATA.insights.map(ins=>`
-    <div class="insight-card ${ins.tone}">
-      <h4>${esc(ins.title)} <span class="tone-pill">${ins.tone}</span></h4>
-      <p class="desc">${esc(ins.desc)}</p>
-      <ul>${ins.items.map(i=>`<li>${esc(i)}</li>`).join('')}</ul>
+/* =========================================================================
+   PICKS & INSIGHTS
+   ========================================================================= */
+function pickItem(r, right){
+  return `<li class="clickable" data-sym="${esc(r.sym)}">
+      <span><b>${esc(r.disp)}</b> <span class="mut">(${esc(r.sym)}) · ${esc(r.sector)}</span></span>
+      <span class="li-right">${right}</span>
+    </li>`;
+}
+function pickCard(title, tone, desc, itemsHtml){
+  return `<div class="insight-card ${tone}">
+      <h4>${esc(title)} <span class="tone-pill">${tone}</span></h4>
+      <p class="desc">${esc(desc)}</p>
+      <ul>${itemsHtml || '<li class="mut">Not enough data for this pick in the selected period.</li>'}</ul>
+    </div>`;
+}
+
+function renderPicks(){
+  const idx = getIndex(PERIOD);
+  const all = Array.from(idx.stocks.values());
+
+  /* ---- Narrative insights shipped inside the report ---- */
+  $('narrativeWrap').innerHTML = (DATA.insights && DATA.insights.length)
+    ? DATA.insights.map(ins=>`
+        <div class="insight-card ${esc(ins.tone)}">
+          <h4>${esc(ins.title)} <span class="tone-pill">${esc(ins.tone)}</span></h4>
+          <p class="desc">${esc(ins.desc)}</p>
+          <ul>${(ins.items||[]).map(i=>`<li><span>${esc(i)}</span></li>`).join('')}</ul>
+        </div>`).join('')
+    : '';
+
+  /* ---- 1. Hidden Gems — fresh, narrow, high conviction ---- */
+  const gems = all
+    .filter(r => r.cnt.FRESH_ENTRY > 0 && r.amcCnt.FRESH_ENTRY >= 2 && r.cnt.FRESH_ENTRY <= 6)
+    .sort((a,b)=> (sortFresh(b) - sortFresh(a)) || (b.totalPerc - a.totalPerc))
+    .slice(0,10);
+  const gemsHtml = gems.map(r =>
+    pickItem(r, `${r.amcCnt.FRESH_ENTRY} AMC${r.amcCnt.FRESH_ENTRY>1?'s':''} · ${r.cnt.FRESH_ENTRY} schemes · ${fmtPct(r.totalPerc)}`)
+  ).join('');
+
+  /* ---- 2. Broad Accumulation — many AMCs adding ---- */
+  const accum = all
+    .filter(r => r.cnt.ADDITION > 0 && r.netDelta > 0)
+    .sort((a,b)=> (sortAdd(b) - sortAdd(a)) || (b.netDelta - a.netDelta))
+    .slice(0,10);
+  const accumHtml = accum.map(r =>
+    pickItem(r, `${r.amcCnt.ADDITION} AMC${r.amcCnt.ADDITION>1?'s':''} · ${r.cnt.ADDITION} schemes · <span class="pos">${fmtDelta(r.netDelta)}</span>`)
+  ).join('');
+
+  /* ---- 3. Crowded Exits — many AMCs leaving ---- */
+  const crowded = all
+    .filter(r => r.cnt.EXIT > 0)
+    .sort((a,b)=> sortExit(b) - sortExit(a))
+    .slice(0,10);
+  const crowdedHtml = crowded.map(r =>
+    pickItem(r, `${r.amcCnt.EXIT} AMC${r.amcCnt.EXIT>1?'s':''} · ${r.cnt.EXIT} schemes out`)
+  ).join('');
+
+  /* ---- 4. Reversal Watch — exited last period, fresh entry now ---- */
+  let reversalHtml = '';
+  const prevKey = String(Number(PERIOD) + 1);
+  if (PERIODS[prevKey]){
+    const prevIdx = getIndex(prevKey);
+    const rev = all
+      .filter(r => r.cnt.FRESH_ENTRY > 0)
+      .map(r => ({ r, p: prevIdx.stocks.get(r.sym) }))
+      .filter(x => x.p && x.p.cnt.EXIT > 0)
+      .sort((a,b)=> (sortFresh(b.r) + sortExit(b.p)) - (sortFresh(a.r) + sortExit(a.p)))
+      .slice(0,10);
+    reversalHtml = rev.map(x =>
+      pickItem(x.r, `${x.r.amcCnt.FRESH_ENTRY} in / ${x.p.amcCnt.EXIT} out last month`)
+    ).join('');
+  }
+
+  /* ---- 5. Persistent Accumulation — added in every available period ---- */
+  const keys = Object.keys(PERIODS).sort();
+  let persistentHtml = '';
+  if (keys.length > 1){
+    const idxs = keys.map(k => getIndex(k));
+    const persist = all
+      .filter(r => idxs.every(ix => {
+        const p = ix.stocks.get(r.sym);
+        return p && p.cnt.ADDITION > 0 && p.netDelta > 0;
+      }))
+      .sort((a,b)=> sortAdd(b) - sortAdd(a))
+      .slice(0,10);
+    persistentHtml = persist.map(r =>
+      pickItem(r, `added in ${keys.length} consecutive periods · ${fmtDelta(r.netDelta)}`)
+    ).join('');
+  }
+
+  /* ---- 6. Rare conviction — held by very few schemes, freshly entered ---- */
+  const rareFresh = all
+    .filter(r => r.cnt.FRESH_ENTRY > 0 && r.cnt.FRESH_ENTRY <= 3 && r.amcCnt.FRESH_ENTRY >= 1)
+    .sort((a,b)=> (b.amcCnt.FRESH_ENTRY - a.amcCnt.FRESH_ENTRY) || (b.totalPerc - a.totalPerc))
+    .slice(0,10);
+  const rareHtml = rareFresh.map(r =>
+    pickItem(r, `${r.amcCnt.FRESH_ENTRY} AMC · ${r.cnt.FRESH_ENTRY} schemes · ${fmtPct(r.totalPerc)}`)
+  ).join('');
+
+  /* ---- 7. Momentum leaders & laggards ---- */
+  const ranked = all.slice().sort((a,b)=> getScore(b) - getScore(a));
+  const leaders  = ranked.slice(0,10);
+  const laggards = ranked.slice(-10).reverse();
+  const leadersHtml  = leaders.map(r => pickItem(r, `score ${getScore(r)}`)).join('');
+  const laggardsHtml = laggards.map(r => pickItem(r, `score ${getScore(r)}`)).join('');
+
+  /* ---- 8. Sector rotation ---- */
+  const sf = (DATA.sector_flow || []);
+  const sectorHtml = sf.length
+    ? sf.slice(0,6).concat(sf.slice(-6)).map(s=>
+        `<li><span>${esc(s.sector)}</span><span class="li-right ${num(s.net_momentum)>=0?'pos':'neg'}">${num(s.net_momentum)>=0?'+':''}${num(s.net_momentum)}</span></li>`
+      ).join('')
+    : '';
+
+  $('picksGrid').innerHTML =
+      pickCard('Hidden Gems', 'bullish', 'Fresh entries that only a handful of AMCs have taken — narrow, high-conviction positions with a small number of schemes.', gemsHtml)
+    + pickCard('Broad Accumulation', 'bullish', 'Stocks being added to by the widest set of AMCs, ranked by AMC breadth and net share delta.', accumHtml)
+    + pickCard('Crowded Exits', 'bearish', 'Names that the largest number of AMCs and schemes stepped away from this period.', crowdedHtml)
+    + pickCard('Reversal Watch', 'watch', 'Stocks that were exited last month but are being freshly entered now — potential sentiment flips.', reversalHtml)
+    + pickCard('Persistent Accumulation', 'bullish', 'Added to in every period available in the dataset with a positive net share change each time.', persistentHtml)
+    + pickCard('Rare Conviction Bets', 'watch', 'Very few schemes hold these, yet a fresh entry has appeared — early or contrarian positioning.', rareHtml)
+    + pickCard('Conviction Leaders', 'bullish', 'Highest composite conviction score: fresh entries + additions − exits − reductions, weighted by AMC breadth.', leadersHtml)
+    + pickCard('Distribution Leaders', 'bearish', 'Lowest composite conviction score — the market is broadly reducing or exiting these names.', laggardsHtml)
+    + pickCard('Sector Rotation', 'watch', 'Sector-level net momentum (fresh + additions − exits − reductions) for the strongest and weakest sectors.', sectorHtml);
+}
+
+/* =========================================================================
+   STOCK EXPLORER
+   ========================================================================= */
+function resolveSym(q){
+  q = (q || '').trim();
+  if (!q) return null;
+  const idx = getIndex(PERIOD);
+  if (idx.stocks.has(q)) return q;
+  const upper = q.toUpperCase();
+  if (idx.stocks.has(upper)) return upper;
+  const lower = q.toLowerCase();
+  let partial = null;
+  for (const [sym, r] of idx.stocks){
+    if (r.disp.toLowerCase() === lower) return sym;
+    if (!partial && (r.disp.toLowerCase().includes(lower) || sym.toLowerCase().includes(lower))) partial = sym;
+  }
+  return partial;
+}
+
+function openStock(sym){
+  const resolved = resolveSym(sym);
+  State.stockSym = resolved;
+  activatePanel('stock');
+  const inp = $('explorerSearch');
+  if (inp && resolved) inp.value = resolved;
+  renderExplorer();
+  window.scrollTo({ top: 0, behavior:'smooth' });
+}
+
+function renderExplorer(){
+  const box = $('explorerBody');
+  const sym = State.stockSym;
+  if (!sym){ box.innerHTML = '<div class="empty">Search for a stock above to see every AMC / scheme action, allocation and 3-month trend.</div>'; return; }
+
+  const idx = getIndex(PERIOD);
+  const r = idx.stocks.get(sym);
+  if (!r){
+    box.innerHTML = `<div class="empty">No holdings activity found for "${esc(sym)}" in this period.</div>`;
+    return;
+  }
+
+  const sig = signalOf(r);
+  const amcRows = (idx.amcRows.get(sym) || []).slice().sort((a,b)=>{
+    const order = { FRESH_ENTRY:0, ADDITION:1, REDUCTION:2, EXIT:3 };
+    return (order[a.action] ?? 9) - (order[b.action] ?? 9) || num(b.share_delta) - num(a.share_delta);
+  });
+
+  /* 3-month trend */
+  const keys = Object.keys(PERIODS).sort();
+  const trendRows = keys.map(k=>{
+    const ix = getIndex(k);
+    const p = ix.stocks.get(sym);
+    const m = PERIODS[k].meta || {};
+    if (!p) return `<tr><td>${esc(m.period_month || k)}</td><td colspan="6" class="mut">no activity recorded</td></tr>`;
+    return `<tr>
+      <td>${esc(m.period_month || k)}</td>
+      <td class="pos">${p.cnt.FRESH_ENTRY}</td>
+      <td class="neg">${p.cnt.EXIT}</td>
+      <td class="pos">${p.cnt.ADDITION}</td>
+      <td class="neg">${p.cnt.REDUCTION}</td>
+      <td class="${p.netDelta >= 0 ? 'pos' : 'neg'}">${fmtDelta(p.netDelta)}</td>
+      <td>${getScore(p)}</td>
+    </tr>`;
+  }).join('');
+
+  /* Same-sector peers with the strongest score */
+  const peers = Array.from(idx.stocks.values())
+    .filter(x => x.sector === r.sector && x.sym !== r.sym && getScore(x) > 0)
+    .sort((a,b)=> getScore(b) - getScore(a))
+    .slice(0,8);
+  const peerHtml = peers.length
+    ? peers.map(p=>`<li class="clickable" data-sym="${esc(p.sym)}"><span><b>${esc(p.disp)}</b> <span class="mut">(${esc(p.sym)})</span></span><span class="li-right">score ${getScore(p)}</span></li>`).join('')
+    : '<li class="mut">No positive-momentum peers in this sector.</li>';
+
+  box.innerHTML = `
+    <div class="stock-head">
+      <div>
+        <h2>${esc(r.disp)} <span class="mut" style="font-family:var(--mono);font-size:14px;">(${esc(r.sym)})</span></h2>
+        <div class="meta">${esc(r.sector)} · latest reporting month ${esc(r.latestMonth || (DATA.meta && DATA.meta.period_month) || '—')}</div>
+      </div>
+      <div><span class="tag ${sig.cls}">${esc(sig.label)}</span>
+        <span class="tag neutral" style="margin-left:6px;">score ${getScore(r)}</span></div>
     </div>
-  `).join('') : '<div class="empty">Not enough data to generate insights for this period.</div>';
+
+    <div class="kpi-grid">
+      <div class="kpi bull"><div class="v">${r.cnt.FRESH_ENTRY}</div><div class="l">Fresh schemes</div></div>
+      <div class="kpi bull"><div class="v">${r.amcCnt.FRESH_ENTRY}</div><div class="l">Fresh AMCs</div></div>
+      <div class="kpi bear"><div class="v">${r.cnt.EXIT}</div><div class="l">Exiting schemes</div></div>
+      <div class="kpi bear"><div class="v">${r.amcCnt.EXIT}</div><div class="l">Exiting AMCs</div></div>
+      <div class="kpi bull"><div class="v">${r.cnt.ADDITION}</div><div class="l">Additions</div></div>
+      <div class="kpi watch"><div class="v">${r.cnt.REDUCTION}</div><div class="l">Reductions</div></div>
+      <div class="kpi accent"><div class="v">${fmtPct(r.totalPerc)}</div><div class="l">Combined alloc %</div></div>
+      <div class="kpi ${r.netDelta >= 0 ? 'bull' : 'bear'}"><div class="v">${fmtDelta(r.netDelta)}</div><div class="l">Net Δ shares</div></div>
+      <div class="kpi"><div class="v">${r.heldSchemes !== null ? r.heldSchemes : '—'}</div><div class="l">Schemes holding</div></div>
+      <div class="kpi"><div class="v">${r.heldAmcs !== null ? r.heldAmcs : '—'}</div><div class="l">AMCs holding</div></div>
+    </div>
+
+    <div class="grid2">
+      <div>
+        <h3 style="font-size:12.5px;margin:6px 0 10px;">3-month activity trend</h3>
+        <div class="table-wrap" style="max-height:220px;">
+          <table><thead><tr><th>Month</th><th>Fresh</th><th>Exit</th><th>Add</th><th>Reduce</th><th>Net Δ</th><th>Score</th></tr></thead>
+          <tbody>${trendRows}</tbody></table>
+        </div>
+        <h3 style="font-size:12.5px;margin:18px 0 10px;">Same-sector momentum peers</h3>
+        <ul style="list-style:none;padding:0;margin:0;">${peerHtml}</ul>
+      </div>
+      <div>
+        <h3 style="font-size:12.5px;margin:6px 0 10px;">AMC-level actions (${amcRows.length})</h3>
+        <div class="table-wrap" style="max-height:420px;">
+          <table><thead><tr><th>AMC</th><th>Action</th><th>Schemes</th><th>Δ Shares</th></tr></thead>
+          <tbody>
+            ${amcRows.length ? amcRows.map(a=>`
+              <tr><td class="name">${esc(a.amc)}</td>
+              <td><span class="tag ${esc(a.action)}">${esc(String(a.action).replace('_',' '))}</span></td>
+              <td>${num(a.num_schemes)}</td>
+              <td class="${num(a.share_delta) >= 0 ? 'pos' : 'neg'}">${fmtDelta(a.share_delta)}</td></tr>
+            `).join('') : '<tr><td colspan="4" class="empty">No AMC-level rows for this stock.</td></tr>'}
+          </tbody></table>
+        </div>
+      </div>
+    </div>`;
 }
 
-// ---------- Fresh Entries table ----------
+/* =========================================================================
+   SCREENER
+   ========================================================================= */
+function renderScreenerFilters(){
+  const idx = getIndex(PERIOD);
+  const sectors = new Set();
+  idx.stocks.forEach(r=>{ if (r.sector && r.sector !== '—') sectors.add(r.sector); });
+  const cur = $('scrSector').value;
+  $('scrSector').innerHTML = '<option value="">All sectors</option>' +
+    Array.from(sectors).sort().map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join('');
+  if (cur) $('scrSector').value = cur;
+}
+
+function renderScreener(){
+  const idx = getIndex(PERIOD);
+  const q = ($('scrSearch').value || '').toLowerCase();
+  const sector = $('scrSector').value;
+  const signal = $('scrSignal').value;
+  const minFresh = num($('scrMinFresh').value);
+  const minAdd = num($('scrMinAdd').value);
+  const sortBy = $('scrSort').value;
+
+  let rows = Array.from(idx.stocks.values()).filter(r=>{
+    if (q && !(r.disp + ' ' + r.sym + ' ' + r.sector).toLowerCase().includes(q)) return false;
+    if (sector && r.sector !== sector) return false;
+    if (minFresh && r.amcCnt.FRESH_ENTRY < minFresh) return false;
+    if (minAdd && r.amcCnt.ADDITION < minAdd) return false;
+    if (signal && signalOf(r).key !== signal) return false;
+    return true;
+  });
+
+  if (sortBy === 'score') rows.sort((a,b)=> getScore(b) - getScore(a));
+  if (sortBy === 'fresh') rows.sort((a,b)=> sortFresh(b) - sortFresh(a));
+  if (sortBy === 'add')   rows.sort((a,b)=> sortAdd(b) - sortAdd(a));
+  if (sortBy === 'exit')  rows.sort((a,b)=> sortExit(b) - sortExit(a));
+  if (sortBy === 'delta') rows.sort((a,b)=> b.netDelta - a.netDelta);
+  if (sortBy === 'perc')  rows.sort((a,b)=> b.totalPerc - a.totalPerc);
+  if (sortBy === 'name')  rows.sort((a,b)=> a.disp.localeCompare(b.disp));
+
+  $('scrCount').textContent = `${rows.length.toLocaleString()} stocks match · showing top ${Math.min(rows.length, 300).toLocaleString()}`;
+  rows = rows.slice(0, 300);
+
+  document.querySelector('#tblScreener tbody').innerHTML = rows.map(r=>{
+    const sig = signalOf(r);
+    return `<tr data-sym="${esc(r.sym)}">
+      <td class="name">${esc(r.disp)} <span class="mut">(${esc(r.sym)})</span></td>
+      <td class="name">${esc(r.sector)}</td>
+      <td><span class="tag ${sig.cls}">${esc(sig.label)}</span></td>
+      <td class="pos">${r.amcCnt.FRESH_ENTRY}</td>
+      <td class="neg">${r.amcCnt.EXIT}</td>
+      <td class="pos">${r.amcCnt.ADDITION}</td>
+      <td class="watch" style="color:var(--watch)">${r.amcCnt.REDUCTION}</td>
+      <td>${r.cnt.FRESH_ENTRY + r.cnt.ADDITION + r.cnt.REDUCTION + r.cnt.EXIT}</td>
+      <td>${r.totalPerc ? fmtPct(r.totalPerc) : '—'}</td>
+      <td class="${r.netDelta >= 0 ? 'pos' : 'neg'}">${fmtDelta(r.netDelta)}</td>
+      <td class="${getScore(r) >= 0 ? 'pos' : 'neg'}">${getScore(r)}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="11" class="empty">No stocks match these filters.</td></tr>';
+}
+
+/* =========================================================================
+   FRESH / EXIT / MOVEMENT / RARE
+   ========================================================================= */
 function renderFresh(){
-  const q = document.getElementById('freshSearch').value.toLowerCase();
-  const sort = document.getElementById('freshSort').value;
-  let rows = DATA.fresh_breadth.filter(r => (r.disp+r.sym+r.sector).toLowerCase().includes(q));
-  if (sort==='amcs') rows.sort((a,b)=>b.num_amcs-a.num_amcs);
-  if (sort==='schemes') rows.sort((a,b)=>b.num_schemes-a.num_schemes);
-  if (sort==='perc') rows.sort((a,b)=>b.total_perc-a.total_perc);
-  rows = rows.slice(0,150);
+  const q = ($('freshSearch').value || '').toLowerCase();
+  const sort = $('freshSort').value;
+  let rows = (DATA.fresh_breadth || []).filter(r => (r.disp + r.sym + r.sector).toLowerCase().includes(q));
+  if (sort === 'amcs')    rows.sort((a,b)=> num(b.num_amcs) - num(a.num_amcs));
+  if (sort === 'schemes') rows.sort((a,b)=> num(b.num_schemes) - num(a.num_schemes));
+  if (sort === 'perc')    rows.sort((a,b)=> num(b.total_perc) - num(a.total_perc));
+  rows = rows.slice(0, 150);
   document.querySelector('#tblFresh tbody').innerHTML = rows.map(r=>`
-    <tr><td class="name">${esc(r.disp)} <span style="color:var(--text-faint)">(${esc(r.sym)})</span></td>
-    <td>${esc(r.sector)}</td><td>${r.num_amcs}</td><td>${r.num_schemes}</td>
-    <td class="pos">${fmtPct(r.total_perc)}</td><td>${esc(r.latest_month||'—')}</td></tr>
-  `).join('') || '<tr><td colspan="6" class="empty">No matches</td></tr>';
+    <tr data-sym="${esc(r.sym)}">
+      <td class="name">${esc(r.disp)} <span class="mut">(${esc(r.sym)})</span></td>
+      <td class="name">${esc(r.sector)}</td><td>${num(r.num_amcs)}</td><td>${num(r.num_schemes)}</td>
+      <td class="pos">${fmtPct(r.total_perc)}</td><td>${esc(r.latest_month || '—')}</td>
+    </tr>`).join('') || '<tr><td colspan="6" class="empty">No matches</td></tr>';
 }
 
-// ---------- Exits table ----------
 function renderExit(){
-  const q = document.getElementById('exitSearch').value.toLowerCase();
-  const sort = document.getElementById('exitSort').value;
-  let rows = DATA.exit_breadth.filter(r => (r.disp+r.sym+r.sector).toLowerCase().includes(q));
-  if (sort==='amcs') rows.sort((a,b)=>b.num_amcs-a.num_amcs);
-  if (sort==='schemes') rows.sort((a,b)=>b.num_schemes-a.num_schemes);
-  rows = rows.slice(0,150);
+  const q = ($('exitSearch').value || '').toLowerCase();
+  const sort = $('exitSort').value;
+  let rows = (DATA.exit_breadth || []).filter(r => (r.disp + r.sym + r.sector).toLowerCase().includes(q));
+  if (sort === 'amcs')    rows.sort((a,b)=> num(b.num_amcs) - num(a.num_amcs));
+  if (sort === 'schemes') rows.sort((a,b)=> num(b.num_schemes) - num(a.num_schemes));
+  rows = rows.slice(0, 150);
   document.querySelector('#tblExit tbody').innerHTML = rows.map(r=>`
-    <tr><td class="name">${esc(r.disp)} <span style="color:var(--text-faint)">(${esc(r.sym)})</span></td>
-    <td>${esc(r.sector)}</td><td>${r.num_amcs}</td><td>${r.num_schemes}</td><td>${esc(r.latest_month||'—')}</td></tr>
-  `).join('') || '<tr><td colspan="5" class="empty">No matches</td></tr>';
+    <tr data-sym="${esc(r.sym)}">
+      <td class="name">${esc(r.disp)} <span class="mut">(${esc(r.sym)})</span></td>
+      <td class="name">${esc(r.sector)}</td><td>${num(r.num_amcs)}</td><td>${num(r.num_schemes)}</td>
+      <td>${esc(r.latest_month || '—')}</td>
+    </tr>`).join('') || '<tr><td colspan="5" class="empty">No matches</td></tr>';
 }
 
-// ---------- Additions / Reductions ----------
 function renderMovement(){
-  const topAdd = DATA.addition_breadth.slice().sort((a,b)=>b.total_share_delta-a.total_share_delta).slice(0,80);
+  const topAdd = (DATA.addition_breadth || []).slice().sort((a,b)=> num(b.total_share_delta) - num(a.total_share_delta)).slice(0, 80);
   document.querySelector('#tblAdd tbody').innerHTML = topAdd.map(r=>`
-    <tr><td class="name">${esc(r.disp)} <span style="color:var(--text-faint)">(${esc(r.sym)})</span></td>
-    <td>${esc(r.sector)}</td><td>${r.num_schemes}</td><td class="pos">+${fmtNum(r.total_share_delta)}</td></tr>
-  `).join('') || '<tr><td colspan="4" class="empty">No data</td></tr>';
+    <tr data-sym="${esc(r.sym)}">
+      <td class="name">${esc(r.disp)} <span class="mut">(${esc(r.sym)})</span></td>
+      <td class="name">${esc(r.sector)}</td><td>${num(r.num_schemes)}</td>
+      <td class="pos">${fmtDelta(r.total_share_delta)}</td>
+    </tr>`).join('') || '<tr><td colspan="4" class="empty">No data</td></tr>';
 
-  const topRed = DATA.reduction_breadth.slice().sort((a,b)=>a.total_share_delta-b.total_share_delta).slice(0,80);
+  const topRed = (DATA.reduction_breadth || []).slice().sort((a,b)=> num(a.total_share_delta) - num(b.total_share_delta)).slice(0, 80);
   document.querySelector('#tblRed tbody').innerHTML = topRed.map(r=>`
-    <tr><td class="name">${esc(r.disp)} <span style="color:var(--text-faint)">(${esc(r.sym)})</span></td>
-    <td>${esc(r.sector)}</td><td>${r.num_schemes}</td><td class="neg">${fmtNum(r.total_share_delta)}</td></tr>
-  `).join('') || '<tr><td colspan="4" class="empty">No data</td></tr>';
+    <tr data-sym="${esc(r.sym)}">
+      <td class="name">${esc(r.disp)} <span class="mut">(${esc(r.sym)})</span></td>
+      <td class="name">${esc(r.sector)}</td><td>${num(r.num_schemes)}</td>
+      <td class="neg">${fmtDelta(r.total_share_delta)}</td>
+    </tr>`).join('') || '<tr><td colspan="4" class="empty">No data</td></tr>';
 }
 
-// ---------- Rare allocations ----------
 function renderRare(){
-  document.querySelector('#tblRareHeld tbody').innerHTML = DATA.rare_held.map(r=>`
-    <tr><td class="name">${esc(r.disp)} <span style="color:var(--text-faint)">(${esc(r.sym)})</span></td>
-    <td>${esc(r.sector)}</td><td>${r.num_schemes}</td><td>${r.num_amcs}</td></tr>
-  `).join('') || '<tr><td colspan="4" class="empty">No data</td></tr>';
+  document.querySelector('#tblRareHeld tbody').innerHTML = (DATA.rare_held || []).map(r=>`
+    <tr data-sym="${esc(r.sym)}">
+      <td class="name">${esc(r.disp)} <span class="mut">(${esc(r.sym)})</span></td>
+      <td class="name">${esc(r.sector)}</td><td>${num(r.num_schemes)}</td><td>${num(r.num_amcs)}</td>
+    </tr>`).join('') || '<tr><td colspan="4" class="empty">No data</td></tr>';
 
-  document.querySelector('#tblRareFresh tbody').innerHTML = DATA.rare_fresh.map(r=>`
-    <tr><td class="name">${esc(r.disp)} <span style="color:var(--text-faint)">(${esc(r.sym)})</span></td>
-    <td>${esc(r.sector)}</td><td>${r.num_schemes}</td><td>${r.num_amcs}</td><td class="pos">${fmtPct(r.total_perc)}</td></tr>
-  `).join('') || '<tr><td colspan="5" class="empty">No data</td></tr>';
+  document.querySelector('#tblRareFresh tbody').innerHTML = (DATA.rare_fresh || []).map(r=>`
+    <tr data-sym="${esc(r.sym)}">
+      <td class="name">${esc(r.disp)} <span class="mut">(${esc(r.sym)})</span></td>
+      <td class="name">${esc(r.sector)}</td><td>${num(r.num_schemes)}</td><td>${num(r.num_amcs)}</td>
+      <td class="pos">${fmtPct(r.total_perc)}</td>
+    </tr>`).join('') || '<tr><td colspan="5" class="empty">No data</td></tr>';
 }
 
-// ---------- AMC view ----------
+/* =========================================================================
+   AMC VIEW
+   ========================================================================= */
+function renderAmcFilters(){
+  const amcs = new Set();
+  (DATA.amc_stock || []).forEach(r=> amcs.add(r.amc));
+  const cur = $('amcNameFilter').value;
+  $('amcNameFilter').innerHTML = '<option value="">All AMCs</option>' +
+    Array.from(amcs).sort().map(a=>`<option value="${esc(a)}">${esc(a)}</option>`).join('');
+  if (cur) $('amcNameFilter').value = cur;
+}
+
 function renderAmc(){
-  const q = document.getElementById('amcSearch').value.toLowerCase();
-  const actionFilter = document.getElementById('amcActionFilter').value;
-  let rows = DATA.amc_stock.filter(r =>
+  const q = ($('amcSearch').value || '').toLowerCase();
+  const actionFilter = $('amcActionFilter').value;
+  const amcFilter = $('amcNameFilter').value;
+  const sort = $('amcSort').value;
+
+  let rows = (DATA.amc_stock || []).filter(r =>
     (!actionFilter || r.action === actionFilter) &&
-    (r.amc+r.sym+r.disp).toLowerCase().includes(q)
+    (!amcFilter || r.amc === amcFilter) &&
+    (r.amc + r.sym + r.disp + (r.sector||'')).toLowerCase().includes(q)
   );
+  if (sort === 'delta')   rows.sort((a,b)=> num(b.share_delta) - num(a.share_delta));
+  if (sort === 'schemes') rows.sort((a,b)=> num(b.num_schemes) - num(a.num_schemes));
   rows = rows.slice(0, 300);
+
   document.querySelector('#tblAmc tbody').innerHTML = rows.map(r=>`
-    <tr><td class="name">${esc(r.amc)}</td><td class="name">${esc(r.disp)} <span style="color:var(--text-faint)">(${esc(r.sym)})</span></td>
-    <td>${esc(r.sector)}</td><td><span class="tag ${r.action}">${r.action.replace('_',' ')}</span></td>
-    <td>${r.num_schemes}</td><td class="${r.share_delta>=0?'pos':'neg'}">${r.share_delta>=0?'+':''}${fmtNum(r.share_delta)}</td></tr>
-  `).join('') || '<tr><td colspan="6" class="empty">No matches</td></tr>';
+    <tr data-sym="${esc(r.sym)}">
+      <td class="name">${esc(r.amc)}</td>
+      <td class="name">${esc(r.disp)} <span class="mut">(${esc(r.sym)})</span></td>
+      <td class="name">${esc(r.sector)}</td>
+      <td><span class="tag ${esc(r.action)}">${esc(String(r.action).replace('_',' '))}</span></td>
+      <td>${num(r.num_schemes)}</td>
+      <td class="${num(r.share_delta) >= 0 ? 'pos' : 'neg'}">${fmtDelta(r.share_delta)}</td>
+    </tr>`).join('') || '<tr><td colspan="6" class="empty">No matches</td></tr>';
 }
 
-// ---------- Scheme view ----------
+/* =========================================================================
+   SCHEME VIEW
+   ========================================================================= */
 function renderScheme(){
-  const q = document.getElementById('schemeSearch').value.toLowerCase();
-  const sort = document.getElementById('schemeSort').value;
-  let rows = DATA.scheme_summary.filter(r => (r.amc+r.scheme).toLowerCase().includes(q));
-  if (sort==='momentum_desc') rows.sort((a,b)=>b.net_momentum-a.net_momentum);
-  if (sort==='momentum_asc') rows.sort((a,b)=>a.net_momentum-b.net_momentum);
-  if (sort==='fresh') rows.sort((a,b)=>b.FRESH_ENTRY-a.FRESH_ENTRY);
-  if (sort==='exit') rows.sort((a,b)=>b.EXIT-a.EXIT);
+  const q = ($('schemeSearch').value || '').toLowerCase();
+  const sort = $('schemeSort').value;
+  let rows = (DATA.scheme_summary || []).filter(r => (r.amc + r.scheme).toLowerCase().includes(q));
+  if (sort === 'momentum_desc') rows.sort((a,b)=> num(b.net_momentum) - num(a.net_momentum));
+  if (sort === 'momentum_asc')  rows.sort((a,b)=> num(a.net_momentum) - num(b.net_momentum));
+  if (sort === 'fresh')         rows.sort((a,b)=> num(b.FRESH_ENTRY) - num(a.FRESH_ENTRY));
+  if (sort === 'exit')          rows.sort((a,b)=> num(b.EXIT) - num(a.EXIT));
+  if (sort === 'size')          rows.sort((a,b)=> num(b.total_stocks) - num(a.total_stocks));
   rows = rows.slice(0, 300);
+
   document.querySelector('#tblScheme tbody').innerHTML = rows.map(r=>`
-    <tr><td class="name">${esc(r.amc)}</td><td class="name">${esc(r.scheme)}</td>
-    <td class="pos">${r.FRESH_ENTRY}</td><td class="neg">${r.EXIT}</td><td class="pos">${r.ADDITION}</td>
-    <td class="neg">${r.REDUCTION}</td><td class="${r.net_momentum>=0?'pos':'neg'}">${r.net_momentum>=0?'+':''}${r.net_momentum}</td>
-    <td>${esc(r.latest_month||'—')}</td></tr>
-  `).join('') || '<tr><td colspan="8" class="empty">No matches</td></tr>';
+    <tr>
+      <td class="name">${esc(r.amc)}</td><td class="name">${esc(r.scheme)}</td>
+      <td class="pos">${num(r.FRESH_ENTRY)}</td><td class="neg">${num(r.EXIT)}</td>
+      <td class="pos">${num(r.ADDITION)}</td><td style="color:var(--watch)">${num(r.REDUCTION)}</td>
+      <td>${num(r.total_stocks)}</td>
+      <td class="${num(r.net_momentum) >= 0 ? 'pos' : 'neg'}">${num(r.net_momentum) >= 0 ? '+' : ''}${num(r.net_momentum)}</td>
+      <td>${esc(r.latest_month || '—')}</td>
+    </tr>`).join('') || '<tr><td colspan="9" class="empty">No matches</td></tr>';
 }
 
-// ---------- Full re-render, called on load and whenever the period changes ----------
+/* =========================================================================
+   DATALISTS (global stock search)
+   ========================================================================= */
+function buildDatalists(){
+  const idx = getIndex(PERIOD);
+  const opts = Array.from(idx.stocks.values())
+    .sort((a,b)=> a.disp.localeCompare(b.disp))
+    .map(r=>`<option value="${esc(r.sym)}">${esc(r.disp)} — ${esc(r.sector)}</option>`)
+    .join('');
+  $('stockList').innerHTML = opts;
+  $('stockList2').innerHTML = opts;
+}
+
+/* =========================================================================
+   FULL RENDER
+   ========================================================================= */
 function renderAll(){
   renderMeta();
   renderOverviewCharts();
-  renderInsights();
+  renderPicks();
+  renderScreenerFilters();
+  renderScreener();
   renderFresh();
   renderExit();
   renderMovement();
   renderRare();
+  renderAmcFilters();
   renderAmc();
   renderScheme();
+  renderExplorer();
 }
 
-document.getElementById('freshSearch').addEventListener('input', renderFresh);
-document.getElementById('freshSort').addEventListener('change', renderFresh);
-document.getElementById('exitSearch').addEventListener('input', renderExit);
-document.getElementById('exitSort').addEventListener('change', renderExit);
-document.getElementById('amcSearch').addEventListener('input', renderAmc);
-document.getElementById('amcActionFilter').addEventListener('change', renderAmc);
-document.getElementById('schemeSearch').addEventListener('input', renderScheme);
-document.getElementById('schemeSort').addEventListener('change', renderScheme);
+/* =========================================================================
+   EVENT WIRING
+   ========================================================================= */
+$('freshSearch').addEventListener('input', renderFresh);
+$('freshSort').addEventListener('change', renderFresh);
+$('exitSearch').addEventListener('input', renderExit);
+$('exitSort').addEventListener('change', renderExit);
+$('amcSearch').addEventListener('input', renderAmc);
+$('amcActionFilter').addEventListener('change', renderAmc);
+$('amcNameFilter').addEventListener('change', renderAmc);
+$('amcSort').addEventListener('change', renderAmc);
+$('schemeSearch').addEventListener('input', renderScheme);
+$('schemeSort').addEventListener('change', renderScheme);
 
+$('scrSearch').addEventListener('input', renderScreener);
+$('scrSector').addEventListener('change', renderScreener);
+$('scrSignal').addEventListener('change', renderScreener);
+$('scrMinFresh').addEventListener('input', renderScreener);
+$('scrMinAdd').addEventListener('input', renderScreener);
+$('scrSort').addEventListener('change', renderScreener);
+
+$('explorerSearch').addEventListener('change', ()=>{
+  State.stockSym = resolveSym($('explorerSearch').value);
+  renderExplorer();
+});
+$('explorerSearch').addEventListener('keydown', e=>{
+  if (e.key === 'Enter'){
+    State.stockSym = resolveSym($('explorerSearch').value);
+    renderExplorer();
+  }
+});
+
+$('globalStockGo').addEventListener('click', ()=> openStock($('globalStockSearch').value));
+$('globalStockSearch').addEventListener('keydown', e=>{
+  if (e.key === 'Enter'){ openStock($('globalStockSearch').value); }
+});
+
+/* Click-through from any row / pick to the explorer */
+document.addEventListener('click', e=>{
+  const t = e.target.closest('[data-sym]');
+  if (t && t.dataset.sym) openStock(t.dataset.sym);
+});
+
+/* =========================================================================
+   BOOT
+   ========================================================================= */
 async function loadReportData(){
+  const meta = $('metaLine');
+  meta.innerHTML = '<span class="spinner"></span>loading report data…';
   try {
     const response = await fetch('report_data.json');
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     PERIODS = await response.json();
-    DATA = PERIODS["0"];
+
+    // Hide period buttons with no data, pick the first available period
+    const available = Object.keys(PERIODS).sort();
+    document.querySelectorAll('#periodSelect button').forEach(b=>{
+      const has = !!PERIODS[b.dataset.period];
+      b.style.display = has ? '' : 'none';
+      b.classList.toggle('active', b.dataset.period === available[0]);
+    });
+    PERIOD = available[0] || '0';
+    DATA = PERIODS[PERIOD];
+
+    // Warm the index for the active period before first paint
+    getIndex(PERIOD);
+
     renderAll();
+    buildDatalists();
   } catch (error) {
-    document.getElementById('metaLine').textContent = 'Unable to load report data';
-    document.getElementById('statsStrip').innerHTML = '<div class="empty">Report data could not be loaded.</div>';
+    meta.textContent = 'Unable to load report data';
+    $('statsStrip').innerHTML = '<div class="empty">Report data could not be loaded.</div>';
+    $('panel-overview').innerHTML = '<div class="card"><div class="empty">Could not load report_data.json — make sure it sits next to this HTML file and is served over HTTP (not opened via file://).</div></div>';
     console.error('Failed to load report data:', error);
   }
 }
