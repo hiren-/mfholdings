@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -127,7 +127,12 @@ table{width:100%; border-collapse:collapse; font-size:12.5px;}
 th{
   text-align:left; font-size:9.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-faint);
   padding:8px 10px; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--bg-card); z-index:2;
+  cursor:pointer; user-select:none; white-space:nowrap; transition:color .12s ease;
 }
+th:hover{color:var(--accent);}
+th.sort-asc, th.sort-desc{color:var(--accent);}
+th .sort-arrow{opacity:.35; font-size:8.5px; margin-left:3px; font-family:var(--sans);}
+th.sort-asc .sort-arrow, th.sort-desc .sort-arrow{opacity:1; color:var(--accent);}
 td{padding:8px 10px; border-bottom:1px solid var(--border); font-family:var(--mono); font-size:12px;}
 td.name{font-family:var(--sans); font-weight:500;}
 tr:hover td{background:var(--accent-soft);}
@@ -184,7 +189,7 @@ tr[data-sym]{cursor:pointer;}
 .insight-card li.clickable:hover{color:var(--accent);}
 .insight-card li .li-right{color:var(--text-faint); font-size:11px; white-space:nowrap;}
 
-/* ---------- KPI / chips ---------- */
+/* ---------- KPI ---------- */
 .kpi-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; margin-bottom:16px;}
 .kpi{background:var(--bg-elev); border:1px solid var(--border); border-radius:10px; padding:11px 13px;}
 .kpi .v{font-family:var(--mono); font-size:19px; font-weight:600;}
@@ -245,8 +250,8 @@ tr[data-sym]{cursor:pointer;}
       <button data-period="2">2 Months Ago</button>
     </div>
     <div class="theme-toggle">
-      <button id="btnDark" class="active" onclick="setTheme('dark')">Dark</button>
-      <button id="btnLight" onclick="setTheme('light')">Light</button>
+      <button id="btnDark" onclick="setTheme('dark')">Dark</button>
+      <button id="btnLight" class="active" onclick="setTheme('light')">Light</button>
     </div>
   </div>
 </div>
@@ -297,7 +302,6 @@ tr[data-sym]{cursor:pointer;}
       <div class="filters">
         <input type="text" id="explorerSearch" list="stockList2" placeholder="Type a stock name or symbol (e.g. RELIANCE, HDFC Bank)…" autocomplete="off">
         <datalist id="stockList2"></datalist>
-        <button class="period-select" style="padding:0;border:none;background:none;"></button>
       </div>
       <div id="explorerBody"><div class="empty">Search for a stock above to see every AMC / scheme action, allocation and 3-month trend.</div></div>
     </div>
@@ -306,7 +310,7 @@ tr[data-sym]{cursor:pointer;}
   <!-- ============ SCREENER ============ -->
   <section class="panel" id="panel-screener">
     <div class="card">
-      <h3>Screener <span class="badge">combine every filter</span></h3>
+      <h3>Screener <span class="badge">combine every filter · click column headers to sort</span></h3>
       <div class="filters">
         <input type="text" id="scrSearch" placeholder="Search stock / symbol / sector…">
         <select id="scrSector"><option value="">All sectors</option></select>
@@ -458,7 +462,7 @@ const State = { charts: [], stockSym: null };
 const IndexCache = new Map();
 
 /* =========================================================================
-   SMALL HELPERS
+   HELPERS
    ========================================================================= */
 const $ = id => document.getElementById(id);
 
@@ -494,7 +498,103 @@ function cssVar(name){
 }
 
 /* =========================================================================
-   INDEX BUILDER — turns one period's report into a per-stock master index
+   SORTABLE TABLES
+   ========================================================================= */
+function parseNumeric(text){
+  if (text === null || text === undefined) return null;
+  let t = String(text).trim();
+  if (!t || t === '—' || t === '–' || t === '-') return null;
+  // matches: [+-]digits/commas[.digits] optional unit
+  const m = t.match(/^([+-]?[\d,]*\.?\d+)\s*(Cr|L|K|%)?$/i);
+  if (!m) return null;
+  let v = parseFloat(m[1].replace(/,/g, ''));
+  if (isNaN(v)) return null;
+  const unit = (m[2] || '').toLowerCase();
+  if (unit === 'cr') v *= 1e7;
+  else if (unit === 'l') v *= 1e5;
+  else if (unit === 'k') v *= 1e3;
+  return v;
+}
+
+function getCellValue(cell){
+  if (!cell) return null;
+  if (cell.dataset && cell.dataset.sort !== undefined) return cell.dataset.sort;
+  const txt = cell.textContent.trim();
+  const n = parseNumeric(txt);
+  if (n !== null) return n;
+  return txt.toLowerCase();
+}
+
+function sortTableBy(table, colIdx, dir){
+  const tbody = table.querySelector('tbody');
+  if (!tbody) return;
+  const rows = Array.from(tbody.querySelectorAll('tr')).filter(tr => tr.children.length > 1);
+
+  rows.sort((a, b) => {
+    const va = getCellValue(a.children[colIdx]);
+    const vb = getCellValue(b.children[colIdx]);
+    if (va === null && vb === null) return 0;
+    if (va === null) return 1;
+    if (vb === null) return -1;
+    let cmp;
+    if (typeof va === 'number' && typeof vb === 'number') cmp = va - vb;
+    else cmp = String(va).localeCompare(String(vb));
+    return dir === 'asc' ? cmp : -cmp;
+  });
+
+  rows.forEach(r => tbody.appendChild(r));
+
+  // Update header state
+  const ths = table.querySelectorAll('thead th');
+  ths.forEach((h, i) => {
+    h.classList.remove('sort-asc', 'sort-desc');
+    const a = h.querySelector('.sort-arrow');
+    if (a) a.textContent = '';
+    if (i === colIdx){
+      h.classList.add('sort-' + dir);
+      if (a) a.textContent = dir === 'asc' ? '▲' : '▼';
+    }
+  });
+  table.dataset.sortCol = String(colIdx);
+  table.dataset.sortDir = dir;
+}
+
+function makeSortable(table){
+  if (!table || table.dataset.sortableInit === '1') return;
+  table.dataset.sortableInit = '1';
+
+  const thead = table.querySelector('thead');
+  if (!thead) return;
+  const ths = thead.querySelectorAll('th');
+
+  ths.forEach((th, idx) => {
+    // Attach arrow span
+    if (!th.querySelector('.sort-arrow')){
+      const arrow = document.createElement('span');
+      arrow.className = 'sort-arrow';
+      th.appendChild(arrow);
+    }
+    th.addEventListener('click', () => {
+      const currentDir = table.dataset.sortCol === String(idx) ? table.dataset.sortDir : null;
+      const newDir = currentDir === 'asc' ? 'desc' : 'asc';
+      sortTableBy(table, idx, newDir);
+    });
+  });
+}
+
+function decorateAllTables(){
+  document.querySelectorAll('table').forEach(t => {
+    makeSortable(t);
+    // Re-apply saved sort state if present
+    if (t.dataset.sortCol !== undefined && t.dataset.sortDir){
+      const idx = parseInt(t.dataset.sortCol, 10);
+      if (!isNaN(idx)) sortTableBy(t, idx, t.dataset.sortDir);
+    }
+  });
+}
+
+/* =========================================================================
+   INDEX BUILDER — per-stock master index for a period
    ========================================================================= */
 function buildIndex(d){
   const stocks = new Map();
@@ -579,7 +679,6 @@ function buildIndex(d){
     arr.push(x);
   });
 
-  // Sync AMC counts from the real AMC sets, and derive scheme counts if breadth missing
   stocks.forEach(r=>{
     ['FRESH_ENTRY','EXIT','ADDITION','REDUCTION'].forEach(a=>{
       r.amcCnt[a] = Math.max(r.amcCnt[a], r.amcSet[a].size);
@@ -772,7 +871,6 @@ function renderOverviewCharts(){
     options:{ plugins:{ legend:{ display:false } }, scales:{ x:{ ticks:{ color:dim }, grid:{ display:false } }, y:{ ticks:{ color:dim }, grid:{ color:grid } } } }
   });
 
-  // Highest conviction scores
   const idx = getIndex(PERIOD);
   const topScore = Array.from(idx.stocks.values())
     .filter(r => (r.cnt.FRESH_ENTRY + r.cnt.ADDITION) > 0)
@@ -792,7 +890,6 @@ function renderOverviewCharts(){
     options:{ plugins:{ legend:{ display:false } }, scales:{ x:{ ticks:{ color:dim }, grid:{ display:false } }, y:{ ticks:{ color:dim }, grid:{ color:grid } } } }
   });
 
-  // AMC net momentum
   const amcAgg = new Map();
   (DATA.scheme_summary || []).forEach(s=>{
     amcAgg.set(s.amc, (amcAgg.get(s.amc) || 0) + num(s.net_momentum));
@@ -842,7 +939,6 @@ function renderPicks(){
   const idx = getIndex(PERIOD);
   const all = Array.from(idx.stocks.values());
 
-  /* ---- Narrative insights shipped inside the report ---- */
   $('narrativeWrap').innerHTML = (DATA.insights && DATA.insights.length)
     ? DATA.insights.map(ins=>`
         <div class="insight-card ${esc(ins.tone)}">
@@ -852,7 +948,6 @@ function renderPicks(){
         </div>`).join('')
     : '';
 
-  /* ---- 1. Hidden Gems — fresh, narrow, high conviction ---- */
   const gems = all
     .filter(r => r.cnt.FRESH_ENTRY > 0 && r.amcCnt.FRESH_ENTRY >= 2 && r.cnt.FRESH_ENTRY <= 6)
     .sort((a,b)=> (sortFresh(b) - sortFresh(a)) || (b.totalPerc - a.totalPerc))
@@ -861,7 +956,6 @@ function renderPicks(){
     pickItem(r, `${r.amcCnt.FRESH_ENTRY} AMC${r.amcCnt.FRESH_ENTRY>1?'s':''} · ${r.cnt.FRESH_ENTRY} schemes · ${fmtPct(r.totalPerc)}`)
   ).join('');
 
-  /* ---- 2. Broad Accumulation — many AMCs adding ---- */
   const accum = all
     .filter(r => r.cnt.ADDITION > 0 && r.netDelta > 0)
     .sort((a,b)=> (sortAdd(b) - sortAdd(a)) || (b.netDelta - a.netDelta))
@@ -870,7 +964,6 @@ function renderPicks(){
     pickItem(r, `${r.amcCnt.ADDITION} AMC${r.amcCnt.ADDITION>1?'s':''} · ${r.cnt.ADDITION} schemes · <span class="pos">${fmtDelta(r.netDelta)}</span>`)
   ).join('');
 
-  /* ---- 3. Crowded Exits — many AMCs leaving ---- */
   const crowded = all
     .filter(r => r.cnt.EXIT > 0)
     .sort((a,b)=> sortExit(b) - sortExit(a))
@@ -879,7 +972,6 @@ function renderPicks(){
     pickItem(r, `${r.amcCnt.EXIT} AMC${r.amcCnt.EXIT>1?'s':''} · ${r.cnt.EXIT} schemes out`)
   ).join('');
 
-  /* ---- 4. Reversal Watch — exited last period, fresh entry now ---- */
   let reversalHtml = '';
   const prevKey = String(Number(PERIOD) + 1);
   if (PERIODS[prevKey]){
@@ -895,7 +987,6 @@ function renderPicks(){
     ).join('');
   }
 
-  /* ---- 5. Persistent Accumulation — added in every available period ---- */
   const keys = Object.keys(PERIODS).sort();
   let persistentHtml = '';
   if (keys.length > 1){
@@ -912,7 +1003,6 @@ function renderPicks(){
     ).join('');
   }
 
-  /* ---- 6. Rare conviction — held by very few schemes, freshly entered ---- */
   const rareFresh = all
     .filter(r => r.cnt.FRESH_ENTRY > 0 && r.cnt.FRESH_ENTRY <= 3 && r.amcCnt.FRESH_ENTRY >= 1)
     .sort((a,b)=> (b.amcCnt.FRESH_ENTRY - a.amcCnt.FRESH_ENTRY) || (b.totalPerc - a.totalPerc))
@@ -921,14 +1011,12 @@ function renderPicks(){
     pickItem(r, `${r.amcCnt.FRESH_ENTRY} AMC · ${r.cnt.FRESH_ENTRY} schemes · ${fmtPct(r.totalPerc)}`)
   ).join('');
 
-  /* ---- 7. Momentum leaders & laggards ---- */
   const ranked = all.slice().sort((a,b)=> getScore(b) - getScore(a));
   const leaders  = ranked.slice(0,10);
   const laggards = ranked.slice(-10).reverse();
   const leadersHtml  = leaders.map(r => pickItem(r, `score ${getScore(r)}`)).join('');
   const laggardsHtml = laggards.map(r => pickItem(r, `score ${getScore(r)}`)).join('');
 
-  /* ---- 8. Sector rotation ---- */
   const sf = (DATA.sector_flow || []);
   const sectorHtml = sf.length
     ? sf.slice(0,6).concat(sf.slice(-6)).map(s=>
@@ -995,7 +1083,6 @@ function renderExplorer(){
     return (order[a.action] ?? 9) - (order[b.action] ?? 9) || num(b.share_delta) - num(a.share_delta);
   });
 
-  /* 3-month trend */
   const keys = Object.keys(PERIODS).sort();
   const trendRows = keys.map(k=>{
     const ix = getIndex(k);
@@ -1013,7 +1100,6 @@ function renderExplorer(){
     </tr>`;
   }).join('');
 
-  /* Same-sector peers with the strongest score */
   const peers = Array.from(idx.stocks.values())
     .filter(x => x.sector === r.sector && x.sym !== r.sym && getScore(x) > 0)
     .sort((a,b)=> getScore(b) - getScore(a))
@@ -1070,6 +1156,9 @@ function renderExplorer(){
         </div>
       </div>
     </div>`;
+
+  // Decorate newly created explorer tables with sortable headers
+  decorateAllTables();
 }
 
 /* =========================================================================
@@ -1123,13 +1212,15 @@ function renderScreener(){
       <td class="pos">${r.amcCnt.FRESH_ENTRY}</td>
       <td class="neg">${r.amcCnt.EXIT}</td>
       <td class="pos">${r.amcCnt.ADDITION}</td>
-      <td class="watch" style="color:var(--watch)">${r.amcCnt.REDUCTION}</td>
+      <td style="color:var(--watch)">${r.amcCnt.REDUCTION}</td>
       <td>${r.cnt.FRESH_ENTRY + r.cnt.ADDITION + r.cnt.REDUCTION + r.cnt.EXIT}</td>
       <td>${r.totalPerc ? fmtPct(r.totalPerc) : '—'}</td>
       <td class="${r.netDelta >= 0 ? 'pos' : 'neg'}">${fmtDelta(r.netDelta)}</td>
       <td class="${getScore(r) >= 0 ? 'pos' : 'neg'}">${getScore(r)}</td>
     </tr>`;
   }).join('') || '<tr><td colspan="11" class="empty">No stocks match these filters.</td></tr>';
+
+  decorateAllTables();
 }
 
 /* =========================================================================
@@ -1149,6 +1240,7 @@ function renderFresh(){
       <td class="name">${esc(r.sector)}</td><td>${num(r.num_amcs)}</td><td>${num(r.num_schemes)}</td>
       <td class="pos">${fmtPct(r.total_perc)}</td><td>${esc(r.latest_month || '—')}</td>
     </tr>`).join('') || '<tr><td colspan="6" class="empty">No matches</td></tr>';
+  decorateAllTables();
 }
 
 function renderExit(){
@@ -1164,6 +1256,7 @@ function renderExit(){
       <td class="name">${esc(r.sector)}</td><td>${num(r.num_amcs)}</td><td>${num(r.num_schemes)}</td>
       <td>${esc(r.latest_month || '—')}</td>
     </tr>`).join('') || '<tr><td colspan="5" class="empty">No matches</td></tr>';
+  decorateAllTables();
 }
 
 function renderMovement(){
@@ -1182,6 +1275,7 @@ function renderMovement(){
       <td class="name">${esc(r.sector)}</td><td>${num(r.num_schemes)}</td>
       <td class="neg">${fmtDelta(r.total_share_delta)}</td>
     </tr>`).join('') || '<tr><td colspan="4" class="empty">No data</td></tr>';
+  decorateAllTables();
 }
 
 function renderRare(){
@@ -1197,6 +1291,7 @@ function renderRare(){
       <td class="name">${esc(r.sector)}</td><td>${num(r.num_schemes)}</td><td>${num(r.num_amcs)}</td>
       <td class="pos">${fmtPct(r.total_perc)}</td>
     </tr>`).join('') || '<tr><td colspan="5" class="empty">No data</td></tr>';
+  decorateAllTables();
 }
 
 /* =========================================================================
@@ -1235,6 +1330,7 @@ function renderAmc(){
       <td>${num(r.num_schemes)}</td>
       <td class="${num(r.share_delta) >= 0 ? 'pos' : 'neg'}">${fmtDelta(r.share_delta)}</td>
     </tr>`).join('') || '<tr><td colspan="6" class="empty">No matches</td></tr>';
+  decorateAllTables();
 }
 
 /* =========================================================================
@@ -1260,10 +1356,11 @@ function renderScheme(){
       <td class="${num(r.net_momentum) >= 0 ? 'pos' : 'neg'}">${num(r.net_momentum) >= 0 ? '+' : ''}${num(r.net_momentum)}</td>
       <td>${esc(r.latest_month || '—')}</td>
     </tr>`).join('') || '<tr><td colspan="9" class="empty">No matches</td></tr>';
+  decorateAllTables();
 }
 
 /* =========================================================================
-   DATALISTS (global stock search)
+   DATALISTS
    ========================================================================= */
 function buildDatalists(){
   const idx = getIndex(PERIOD);
@@ -1292,6 +1389,7 @@ function renderAll(){
   renderAmc();
   renderScheme();
   renderExplorer();
+  decorateAllTables();
 }
 
 /* =========================================================================
@@ -1331,10 +1429,9 @@ $('globalStockSearch').addEventListener('keydown', e=>{
   if (e.key === 'Enter'){ openStock($('globalStockSearch').value); }
 });
 
-/* Click-through from any row / pick to the explorer */
 document.addEventListener('click', e=>{
   const t = e.target.closest('[data-sym]');
-  if (t && t.dataset.sym) openStock(t.dataset.sym);
+  if (t && t.dataset.sym && !e.target.closest('th')) openStock(t.dataset.sym);
 });
 
 /* =========================================================================
@@ -1348,7 +1445,6 @@ async function loadReportData(){
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     PERIODS = await response.json();
 
-    // Hide period buttons with no data, pick the first available period
     const available = Object.keys(PERIODS).sort();
     document.querySelectorAll('#periodSelect button').forEach(b=>{
       const has = !!PERIODS[b.dataset.period];
@@ -1358,7 +1454,6 @@ async function loadReportData(){
     PERIOD = available[0] || '0';
     DATA = PERIODS[PERIOD];
 
-    // Warm the index for the active period before first paint
     getIndex(PERIOD);
 
     renderAll();
